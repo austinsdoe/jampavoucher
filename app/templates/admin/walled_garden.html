@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Walled Garden{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">🌐 Walled Garden Management</h3>
+
+  <!-- Router Selector -->
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <select name="router_id" class="form-select" onchange="this.form.submit()">
+        <option value="">🔀 Select Router</option>
+        {% for r in routers %}
+          <option value="{{ r.id }}" {% if selected_router_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  {% if selected_router_id %}
+  <!-- Auto Add Button -->
+  <div class="mb-3">
+    <a href="{{ url_for('admin.admin_walled.auto_add_captive_rule', router_id=selected_router_id) }}"
+       class="btn btn-outline-secondary btn-sm">
+      ➕ Auto Add Captive Portal Rule
+    </a>
+  </div>
+
+  <!-- Add Host Rule -->
+  <div class="card mb-4">
+    <div class="card-header">➕ Add Host-based Walled Garden Rule</div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('admin.admin_walled.add_rule') }}">
+        <input type="hidden" name="router_id" value="{{ selected_router_id }}">
+        <div class="row g-3">
+          <div class="col-md-5">
+            <input type="text" name="dst_host" class="form-control" placeholder="e.g. captive.yourdomain.com" required>
+          </div>
+          <div class="col-md-5">
+            <input type="text" name="comment" class="form-control" placeholder="Optional comment">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add IP Rule -->
+  <div class="card mb-4">
+    <div class="card-header">➕ Add IP-based Walled Garden Rule</div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('admin.admin_walled.add_rule_ip') }}">
+        <input type="hidden" name="router_id" value="{{ selected_router_id }}">
+        <div class="row g-3">
+          <div class="col-md-5">
+            <input type="text" name="dst_address" class="form-control" placeholder="e.g. 192.168.88.5" required>
+          </div>
+          <div class="col-md-5">
+            <input type="text" name="comment" class="form-control" placeholder="Optional comment">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">Add IP</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Host Rules List -->
+  <div class="card mb-4">
+    <div class="card-header">📜 Host-based Walled Garden Rules</div>
+    <div class="card-body p-0">
+      <table class="table table-bordered table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Destination Host</th>
+            <th>Destination Address</th>
+            <th>Comment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rule in rules %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ rule.get('dst-host', '-') }}</td>
+            <td>{{ rule.get('dst-address', '-') }}</td>
+            <td>{{ rule.get('comment', '-') }}</td>
+            <td>
+              <a href="{{ url_for('admin.admin_walled.delete_rule', router_id=selected_router_id, rule_id=rule['.id']) }}"
+                 class="btn btn-sm btn-danger"
+                 onclick="return confirm('Delete this rule?');">
+                🗑️ Delete
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-muted">No host-based rules found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- IP Rules List -->
+  <div class="card">
+    <div class="card-header">📜 IP-based Walled Garden Rules</div>
+    <div class="card-body p-0">
+      <table class="table table-bordered table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Destination Address</th>
+            <th>Comment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rule in rules_ip %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ rule.get('dst-address', '-') }}</td>
+            <td>{{ rule.get('comment', '-') }}</td>
+            <td>
+              <a href="{{ url_for('admin.admin_walled.delete_rule_ip', router_id=selected_router_id, rule_id=rule['.id']) }}"
+                 class="btn btn-sm btn-danger"
+                 onclick="return confirm('Delete this IP rule?');">
+                🗑️ Delete
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted">No IP-based rules found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

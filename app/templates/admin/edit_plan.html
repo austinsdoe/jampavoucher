@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Edit Plan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">✏️ Edit Plan: {{ plan.name }}</h3>
+
+  <form method="POST" class="card p-4 shadow-sm">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+      <label>{{ form.name.label }}</label>
+      {{ form.name(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label>{{ form.bandwidth_limit_mb.label }}</label>
+      {{ form.bandwidth_limit_mb(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label>{{ form.duration_days.label }}</label>
+      {{ form.duration_days(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label>{{ form.price.label }}</label>
+      {{ form.price(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label>{{ form.description.label }}</label>
+      {{ form.description(class="form-control") }}
+    </div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Buy Voucher (Orange Money){% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h4 class="card-title mb-4 text-center text-orange fw-bold">
+        🟧 Orange Money
+      </h4>
+
+      <div class="alert alert-warning text-center">
+        Enter your Orange number and the amount to continue.
+      </div>
+
+      <form method="POST" novalidate>
+        <div class="mb-3">
+          <label for="phone" class="form-label">📞 Phone Number</label>
+          <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. 0770XXXXXX" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="amount" class="form-label">💵 Amount (LRD)</label>
+          <input type="number" id="amount" name="amount" class="form-control" min="1" placeholder="Enter amount" required>
+        </div>
+
+        <button type="submit" class="btn btn-orange w-100 fw-semibold">
+          💳 Pay with Orange Money
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .btn-orange {
+    background-color: #ff6600;
+    color: white;
+  }
+
+  .btn-orange:hover {
+    background-color: #e65c00;
+    color: white;
+  }
+
+  .text-orange {
+    color: #ff6600;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Create Voucher Batch{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">📦 Create Voucher Batch</h2>
+
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <!-- 🧾 Plan Selection -->
+    <div class="mb-3">
+      {{ form.plan_id.label(class="form-label") }}
+      {{ form.plan_id(class="form-select", id="plan-select") }}
+      {% if form.plan_id.errors %}
+        <div class="text-danger small">{{ form.plan_id.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- 🔧 Custom Plan Fields -->
+    <div id="custom-fields" style="display: none;">
+      <div class="mb-3">
+        {{ form.custom_bandwidth.label(class="form-label") }}
+        {{ form.custom_bandwidth(class="form-control") }}
+        {% if form.custom_bandwidth.errors %}
+          <div class="text-danger small">{{ form.custom_bandwidth.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.custom_duration.label(class="form-label") }}
+        {{ form.custom_duration(class="form-control") }}
+        {% if form.custom_duration.errors %}
+          <div class="text-danger small">{{ form.custom_duration.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.custom_price.label(class="form-label") }}
+        {{ form.custom_price(class="form-control") }}
+        {% if form.custom_price.errors %}
+          <div class="text-danger small">{{ form.custom_price.errors[0] }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 🔢 Quantity -->
+    <div class="mb-3">
+      {{ form.quantity.label(class="form-label") }}
+      {{ form.quantity(class="form-control") }}
+      {% if form.quantity.errors %}
+        <div class="text-danger small">{{ form.quantity.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- 🌐 Router Selection -->
+    <div class="mb-3">
+      {{ form.router_id.label(class="form-label") }}
+      {{ form.router_id(class="form-select") }}
+      {% if form.router_id.errors %}
+        <div class="text-danger small">{{ form.router_id.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- ✅ Submit -->
+    <button type="submit" class="btn btn-success">
+      {{ form.submit.label }}
+    </button>
+  </form>
+</div>
+
+<!-- 🧠 Script to toggle custom plan fields -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const planSelect = document.getElementById("plan-select");
+    const customFields = document.getElementById("custom-fields");
+
+    function toggleCustomFields() {
+      if (planSelect.value === "custom") {
+        customFields.style.display = "block";
+      } else {
+        customFields.style.display = "none";
+      }
+    }
+
+    if (planSelect) {
+      planSelect.addEventListener("change", toggleCustomFields);
+      toggleCustomFields();
+    }
+  });
+</script>
+{% endblock %}

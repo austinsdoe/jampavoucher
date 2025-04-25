@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Buy Voucher (MTN){% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h4 class="card-title mb-4 text-center text-warning fw-bold">
+        📱 MTN Mobile Money
+      </h4>
+
+      <div class="alert alert-info text-center">
+        Enter your phone number and amount to pay via MTN MoMo.
+      </div>
+
+      <form method="POST" novalidate>
+        <div class="mb-3">
+          <label for="phone" class="form-label">📞 Phone Number</label>
+          <input type="text" id="phone" name="phone" class="form-control" placeholder="e.g. 0886XXXXXX" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="amount" class="form-label">💵 Amount (LRD)</label>
+          <input type="number" id="amount" name="amount" class="form-control" min="1" placeholder="Enter amount" required>
+        </div>
+
+        <button type="submit" class="btn btn-warning w-100 fw-semibold">
+          💰 Pay with MTN MoMo
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

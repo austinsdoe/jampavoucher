@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Voucher Usage Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>📊 Voucher Usage Report</h3>
+  </div>
+
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+      <label for="start_date" class="form-label">Start Date</label>
+      <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+    </div>
+    <div class="col-md-3">
+      <label for="end_date" class="form-label">End Date</label>
+      <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+    </div>
+    <div class="col-md-3">
+      <label for="router_id" class="form-label">Router</label>
+      <select id="router_id" name="router_id" class="form-select">
+        <option value="">All Routers</option>
+        {% for router in routers %}
+        <option value="{{ router.id }}" {% if request.args.get('router_id') == router.id|string %}selected{% endif %}>{{ router.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="staff_id" class="form-label">Staff</label>
+      <select id="staff_id" name="staff_id" class="form-select">
+        <option value="">All Staff</option>
+        {% for user in staff %}
+        <option value="{{ user.id }}" {% if request.args.get('staff_id') == user.id|string %}selected{% endif %}>{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-12">
+      <button type="submit" class="btn btn-primary me-2">🔍 Filter</button>
+      <a href="{{ url_for('reports.usage_report') }}?{{ request.query_string.decode('utf-8') }}&export=csv" class="btn btn-outline-secondary me-2">📤 Export CSV</a>
+      <a href="{{ url_for('reports.usage_report') }}?{{ request.query_string.decode('utf-8') }}&export=pdf" class="btn btn-outline-secondary">📄 Export PDF</a>
+    </div>
+  </form>
+
+  {% if usages %}
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>🎟️ Voucher Code</th>
+          <th>Router</th>
+          <th>IP</th>
+          <th>MAC</th>
+          <th>Session Start</th>
+          <th>Session End</th>
+          <th>Used (MB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usages %}
+        <tr>
+          <td><code>{{ u.voucher_code }}</code></td>
+          <td>{{ u.router.name if u.router else "N/A" }}</td>
+          <td>{{ u.ip_address }}</td>
+          <td>{{ u.mac_address or "N/A" }}</td>
+          <td>{{ u.session_start.strftime('%Y-%m-%d %H:%M') if u.session_start else "—" }}</td>
+          <td>{{ u.session_end.strftime('%Y-%m-%d %H:%M') if u.session_end else "Ongoing" }}</td>
+          <td>{{ u.data_used_mb or 0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info mt-4">No voucher usage logs found for the selected filters.</div>
+  {% endif %}
+</div>
+{% endblock %}

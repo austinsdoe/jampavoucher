@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Queue Cleanup{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">🧹 Queue Cleanup</h3>
+
+    <p>Select queues to remove from the router. These may be expired, orphaned (voucher no longer active), or manually flagged.</p>
+
+    <form method="POST" action="{{ url_for('admin.perform_queue_cleanup', router_id=router.id) }}">
+        <input type="hidden" name="confirm" value="yes">
+
+        <div class="mb-3">
+            <strong>Router:</strong> {{ router.name }} ({{ router.ip }})
+        </div>
+
+        {% if queues %}
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th><input type="checkbox" id="select_all"></th>
+                    <th>Queue Name</th>
+                    <th>Target</th>
+                    <th>Max Limit</th>
+                    <th>Bytes In</th>
+                    <th>Bytes Out</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in queues %}
+                <tr>
+                    <td><input type="checkbox" name="queue_names" value="{{ q.name }}"></td>
+                    <td>{{ q.name }}</td>
+                    <td>{{ q.target }}</td>
+                    <td>{{ q.max_limit }}</td>
+                    <td>{{ q.bytes_in | filesizeformat }}</td>
+                    <td>{{ q.bytes_out | filesizeformat }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn btn-danger mt-3" onclick="return confirm('Are you sure you want to delete selected queues?')">
+            🗑 Delete Selected Queues
+        </button>
+        {% else %}
+        <div class="alert alert-info">✅ No orphaned or removable queues found.</div>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+document.getElementById("select_all").addEventListener("change", function() {
+    const checkboxes = document.querySelectorAll('input[name="queue_names"]');
+    for (let cb of checkboxes) {
+        cb.checked = this.checked;
+    }
+});
+</script>
+{% endblock %}

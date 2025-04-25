@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Available Plans{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">📋 Available Plans</h3>
+
+  {% if plans %}
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Name</th>
+        <th>Bandwidth (MB)</th>
+        <th>Duration (Days)</th>
+        <th>Price (LRD)</th>
+        <th>Description</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plan in plans %}
+      <tr>
+        <td>{{ plan.name }}</td>
+        <td>{{ plan.bandwidth_limit_mb }}</td>
+        <td>{{ plan.duration_days }}</td>
+        <td>{{ plan.price }}</td>
+        <td>{{ plan.description or '-' }}</td>
+        <td class="text-center">
+          <a href="{{ url_for('admin.plans.edit_plan', plan_id=plan.id) }}" class="btn btn-sm btn-warning">✏️ Edit</a>
+          <form action="{{ url_for('admin.plans.delete_plan', plan_id=plan.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this plan?');">
+            <button class="btn btn-sm btn-danger" type="submit">🗑️ Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No plans found. <a href="{{ url_for('admin.plans.create_plan') }}">Create one</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

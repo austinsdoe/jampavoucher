@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Batch #{{ batch.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3>📋 Batch: {{ batch.name }}</h3>
+  <p>
+    Created: {{ batch.created_at.strftime('%Y-%m-%d %H:%M') }} |
+    {{ batch.quantity }} vouchers
+  </p>
+
+  <!-- Export & Print Actions -->
+  <div class="mb-3">
+    <a href="{{ url_for('admin.admin_vouchers.export_batch', batch_id=batch.id) }}"
+       class="btn btn-outline-primary btn-sm">⬇️ Export CSV</a>
+
+    <a href="{{ url_for('admin.admin_vouchers.print_batch', batch_id=batch.id) }}"
+       class="btn btn-outline-secondary btn-sm" target="_blank">🖨️ Print</a>
+  </div>
+
+  <!-- Upload to Router -->
+  {% if batch.upload_status != "uploaded" %}
+  <form method="POST" action="{{ url_for('admin.admin_vouchers.upload_batch_to_router', batch_id=batch.id) }}">
+    <button type="submit" class="btn btn-success btn-sm mb-3">🚀 Upload to Router</button>
+  </form>
+  {% else %}
+  <div class="alert alert-success py-2 small mb-3">
+    ✅ Uploaded on {{ batch.upload_date.strftime('%Y-%m-%d %H:%M') }}
+  </div>
+  {% endif %}
+
+  <!-- Voucher List Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Code</th>
+          <th>Status</th>
+          <th>Data Cap</th>
+          <th>Expires</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vouchers %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><code>{{ v.code }}</code></td>
+          <td>{{ v.status }}</td>
+          <td>{{ v.data_cap }} MB</td>
+          <td>{{ v.expires_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

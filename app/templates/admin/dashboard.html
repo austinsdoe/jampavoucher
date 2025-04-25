@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 px-md-4 mt-3">
+  <h2 class="mb-4 text-center text-md-start">📊 Admin Dashboard</h2>
+
+  <!-- Overview Cards -->
+  <div class="row g-4">
+    {% set cards = [
+      {'title': '🌐 Routers', 'value': total_routers, 'url': url_for('admin.routers.manage_routers'), 'color': 'primary', 'label': 'Manage Routers'},
+      {'title': '🎟️ Vouchers', 'value': total_vouchers, 'url': url_for('admin.admin_vouchers.voucher_batches'), 'color': 'success', 'label': 'View Batches'},
+      {'title': '👷 Staff Accounts', 'value': total_staff, 'url': url_for('admin.admin_staff.staff_accounts'), 'color': 'warning', 'label': 'Manage Staff'},
+      {'title': '👥 Active Users', 'value': active_users_count, 'url': url_for('captive.voucher_user_dashboard'), 'color': 'info', 'label': 'View Active'}
+    ] %}
+    {% for card in cards %}
+    <div class="col-sm-6 col-md-3">
+      <div class="card border-{{ card.color }} shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6 class="text-muted">{{ card.title }}</h6>
+          <h3 class="fw-bold">{{ card.value }}</h3>
+          <a href="{{ card.url }}" class="btn btn-outline-{{ card.color }} btn-sm w-100 mt-2">{{ card.label }}</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Charts -->
+  <hr class="my-5">
+  <h4 class="mb-3 text-center text-md-start">📈 Activity Overview (Last 7 Days)</h4>
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted">💰 Sales</h6>
+          <canvas id="salesChart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted">🎫 Vouchers Used</h6>
+          <canvas id="usageChart" height="150"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const labels = {{ chart_labels | tojson }};
+    const salesData = {{ chart_sales | tojson }};
+    const usageData = {{ chart_usage | tojson }};
+
+    new Chart(document.getElementById('salesChart'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Sales (USD)",
+          data: salesData,
+          borderColor: "#28a745",
+          backgroundColor: "rgba(40,167,69,0.2)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    new Chart(document.getElementById('usageChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Vouchers Used",
+          data: usageData,
+          backgroundColor: "#0d6efd"
+        }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+  </script>
+
+  <!-- Router Status -->
+  <hr class="my-5">
+  <div class="card shadow-sm border-info">
+    <div class="card-header bg-info text-white">
+      <strong>📡 MikroTik Router Status</strong>
+    </div>
+    <div class="card-body">
+      {% if routers %}
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr><th>Name</th><th>IP Address</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for router in routers %}
+            <tr>
+              <td>{{ router.name }}</td>
+              <td>{{ router.ip }}</td>
+              <td id="status-{{ router.id }}">⏳ Checking...</td>
+            </tr>
+            <script>
+              fetch("{{ url_for('admin.routers.check_api_status', router_id=router.id) }}")
+                .then(res => res.json())
+                .then(data => {
+                  const el = document.getElementById("status-{{ router.id }}");
+                  el.innerHTML = data.status === "online" ? "🟢 Online" : "🔴 Offline";
+                })
+                .catch(() => {
+                  document.getElementById("status-{{ router.id }}").innerHTML = "⚠️ Error";
+                });
+            </script>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted">No routers configured yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <hr class="my-5">
+  <h4 class="mb-3 text-center text-md-start">⚙️ Quick Actions</h4>
+  <div class="row g-4">
+    {% set quick_actions = [
+      {'title': '➕ Add Staff', 'url': url_for('admin.admin_staff.create_staff'), 'color': 'dark'},
+      {'title': '🎫 Single Voucher', 'url': url_for('admin.admin_vouchers.create_voucher'), 'color': 'info'},
+      {'title': '📦 Batch Vouchers', 'url': url_for('admin.admin_vouchers.create_voucher_batch'), 'color': 'secondary'},
+      {'title': '📋 Add Plan', 'url': url_for('admin.plans.create_plan'), 'color': 'primary'},
+      {'title': '📄 View Plans', 'url': url_for('admin.plans.list_plans'), 'color': 'primary', 'outline': True},
+      {'title': '🧾 Single Vouchers', 'url': url_for('admin.admin_vouchers.single_vouchers'), 'color': 'secondary', 'outline': True}
+    ] %}
+    {% for action in quick_actions %}
+    <div class="col-sm-6 col-md-3">
+      <div class="card border-{{ action.color }} shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6 class="card-title">{{ action.title }}</h6>
+          <a href="{{ action.url }}" class="btn btn-{{ 'outline-' if action.outline else '' }}{{ action.color }} btn-sm w-100">Go</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Reports -->
+  <hr class="my-5">
+  <h4 class="mb-3 text-center text-md-start">📑 Reports</h4>
+  <div class="list-group mb-5">
+    <a href="{{ url_for('reports.sales_report') }}" class="list-group-item list-group-item-action">📈 Sales Report</a>
+    <a href="{{ url_for('reports.usage_report') }}" class="list-group-item list-group-item-action">📊 Usage Report</a>
+    <a href="{{ url_for('reports.staff_report') }}" class="list-group-item list-group-item-action">👷 Staff Performance</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Logging In...</title>
+  </head>
+  <body>
+    <form id="mikrotik-login" method="post" action="http://{{ router_ip }}/login">
+      <input type="hidden" name="username" value="{{ code }}">
+      <input type="hidden" name="password" value="">
+      <input type="hidden" name="dst" value="http://www.msftconnecttest.com/redirect">
+    </form>
+    <p class="text-center">Activating voucher <code>{{ code }}</code>... Please wait.</p>
+    <script>
+      document.getElementById("mikrotik-login").submit();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Router Dashboard - {{ router.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">🖥️ Router Dashboard: {{ router.name }}</h3>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <h6 class="text-muted">Status</h6>
+                <h4>{{ "🟢 Online" if router_status else "🔴 Offline" }}</h4>
+                <small>Uptime: {{ uptime or "N/A" }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <h6 class="text-muted">IP Address</h6>
+                <h4>{{ router.ip }}</h4>
+                <small>Port: {{ router.api_port }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <h6 class="text-muted">Hotspot Profiles</h6>
+                <h4>{{ profile_count }}</h4>
+                <small><a href="{{ url_for('routers.view_profiles', router_id=router.id) }}">Manage</a></small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+                <h6 class="text-muted">Active Users</h6>
+                <h4>{{ active_user_count }}</h4>
+                <small><a href="{{ url_for('routers.view_active_users', router_id=router.id) }}">View</a></small>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mb-4">
+
+    <h5 class="mb-3">🌐 Interfaces</h5>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Running</th>
+                <th>MAC Address</th>
+                <th>Tx/Rx</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for iface in interfaces %}
+            <tr>
+                <td>{{ iface.name }}</td>
+                <td>{{ iface.type }}</td>
+                <td>{{ iface.running }}</td>
+                <td>{{ iface.mac_address }}</td>
+                <td>{{ iface.tx_byte | filesizeformat }} / {{ iface.rx_byte | filesizeformat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr class="my-4">
+
+    <h5 class="mb-3">🚦 Queues</h5>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Target</th>
+                <th>Max Limit</th>
+                <th>Bytes In/Out</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for queue in queues %}
+            <tr>
+                <td>{{ queue.name }}</td>
+                <td>{{ queue.target }}</td>
+                <td>{{ queue.max_limit }}</td>
+                <td>{{ queue.bytes_in | filesizeformat }} / {{ queue.bytes_out | filesizeformat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

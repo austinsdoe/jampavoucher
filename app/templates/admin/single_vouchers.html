@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Single Vouchers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🎟️ Single Vouchers</h2>
+
+  <!-- 🔍 Search and Filter -->
+  <form class="row g-2 mb-3" method="GET">
+    <div class="col-md-5">
+      <input type="text" class="form-control" name="q" placeholder="🔍 Search by voucher code..." value="{{ search }}">
+    </div>
+    <div class="col-md-4">
+      <select name="router" class="form-select">
+        <option value="">All Routers</option>
+        {% for r in routers %}
+          <option value="{{ r.id }}" {% if selected_router == r.id %}selected{% endif %}>{{ r.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </form>
+
+  <!-- 📋 Vouchers Table -->
+  <table class="table table-bordered table-hover table-striped align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Code</th>
+        <th>Plan</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Used</th>
+        <th>Data Used</th>
+        <th>Expires</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for voucher in vouchers %}
+      <tr>
+        <td><strong>{{ voucher.code }}</strong></td>
+        <td>{{ voucher.plan.name if voucher.plan else voucher.plan_name }}</td>
+        <td>{{ voucher.display_status }}</td>
+        <td>{{ voucher.created_at.strftime('%Y-%m-%d') }}</td>
+        <td>{{ voucher.used_at.strftime('%Y-%m-%d') if voucher.used_at else '—' }}</td>
+        <td>{{ voucher.used_mb or 0 }} MB</td>
+        <td>{{ voucher.expires_at.strftime('%Y-%m-%d') if voucher.expires_at else '—' }}</td>
+        <td>
+          {% if voucher.uploaded %}
+            <span class="badge bg-success">✅ Uploaded</span>
+          {% else %}
+            <form method="POST" action="{{ url_for('admin.admin_vouchers.upload_single_voucher', voucher_id=voucher.id) }}">
+              <button type="submit" class="btn btn-sm btn-outline-success">📤 Upload</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8" class="text-center text-muted">No vouchers found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

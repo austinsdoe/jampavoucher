@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">🛠 Configure IP Address on Router Interface</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="router_id" class="form-label">Select Router</label>
+          <select class="form-select" name="router_id" id="router_id" required>
+            <option value="">-- Choose Router --</option>
+            {% for r in routers %}
+              <option value="{{ r.id }}">{{ r.name }} - {{ r.ip_address }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="interface" class="form-label">Interface</label>
+          <select class="form-select" name="interface" id="interface" required disabled>
+            <option value="">-- Select Interface --</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="cidr_address" class="form-label">IP Address (CIDR)</label>
+          <input type="text" name="cidr_address" class="form-control" placeholder="192.168.88.1/24" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Assign IP</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const routerSelect = document.getElementById("router_id");
+  const interfaceSelect = document.getElementById("interface");
+
+  routerSelect.addEventListener("change", function () {
+    const routerId = this.value;
+
+    interfaceSelect.disabled = true;
+    interfaceSelect.innerHTML = `<option>🔄 Loading interfaces...</option>`;
+
+    if (!routerId) {
+      interfaceSelect.innerHTML = "<option value=''>-- Select Interface --</option>";
+      interfaceSelect.disabled = true;
+      return;
+    }
+
+    fetch(`/admin/routers/api/${routerId}/interfaces`)
+      .then(res => res.json())
+      .then(data => {
+        interfaceSelect.innerHTML = "";
+        if (data.status === "ok") {
+          interfaceSelect.disabled = false;
+          interfaceSelect.innerHTML = "<option value=''>-- Select Interface --</option>";
+          data.interfaces.forEach(iface => {
+            const opt = document.createElement("option");
+            opt.value = iface.name;
+            opt.textContent = `${iface.name} (${iface["mac-address"] || "No MAC"})`;
+            interfaceSelect.appendChild(opt);
+          });
+        } else {
+          interfaceSelect.innerHTML = `<option value="">⚠️ ${data.message || "Error loading interfaces"}</option>`;
+        }
+      })
+      .catch(err => {
+        interfaceSelect.innerHTML = "<option value=''>❌ Failed to load interfaces</option>";
+        interfaceSelect.disabled = true;
+        console.error("Interface load error:", err);
+      });
+  });
+</script>
+{% endblock %}

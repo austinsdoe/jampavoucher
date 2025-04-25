@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Router Interfaces{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0">🧬 Interfaces on All Routers</h5>
+    </div>
+    <div class="card-body">
+      {% for item in router_interfaces %}
+        <h6 class="mt-4 text-primary">{{ item.router.name }} ({{ item.router.ip_address }})</h6>
+
+        {% if item.error %}
+          <p class="text-danger">{{ item.error }}</p>
+
+        {% elif item.interfaces %}
+          <table class="table table-bordered small">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>MAC Address</th>
+                <th>Status</th>
+                <th>Assigned IP(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for iface in item.interfaces %}
+              <tr>
+                <td>{{ iface.name }}</td>
+                <td>{{ iface.mac_address or "N/A" }}</td>
+                <td>{{ "🟢 Enabled" if iface.disabled == "false" else "🔴 Disabled" }}</td>
+                <td>
+                  {% if iface.ip_addresses %}
+                    {{ iface.ip_addresses | join(', ') }}
+                  {% else %}
+                    <span class="text-muted">None</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        {% else %}
+          <p class="text-muted">No interfaces found.</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

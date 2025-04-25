@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}📡 IP Change Logs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">📡 IP Change Logs</h3>
+
+  <table class="table table-bordered table-hover table-striped">
+    <thead class="table-light">
+      <tr>
+        <th>🆔 Router</th>
+        <th>Old IP</th>
+        <th>New IP</th>
+        <th>Changed At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.router_name }}</td>
+        <td>{{ log.old_ip }}</td>
+        <td>{{ log.new_ip }}</td>
+        <td>{{ log.changed_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

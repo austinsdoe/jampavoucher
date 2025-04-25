@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Voucher Batch{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>📦 Batch: {{ batch.name or "Batch #" ~ batch.id }}</h4>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('voucher.export_batch_pdf', batch_id=batch.id) }}" class="btn btn-outline-dark">⬇️ Export PDF</a>
+      <button class="btn btn-outline-primary" onclick="window.print()">🖨️ Print All</button>
+
+      {% if not batch.uploaded %}
+        <form method="POST" action="{{ url_for('admin.admin_vouchers.upload_batch_to_router', batch_id=batch.id) }}">
+          <button type="submit" class="btn btn-success">📤 Upload to Router</button>
+        </form>
+      {% else %}
+        <span class="badge bg-success align-self-center">✅ Uploaded on {{ batch.uploaded_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-3 g-4" id="print-area">
+    {% for voucher in vouchers %}
+    <div class="col">
+      <div class="card border shadow-sm text-center p-3">
+        <h5 class="fw-bold">{{ voucher.code }}</h5>
+        <img src="{{ url_for('static', filename='qr/{{ voucher.code }}.png') }}" class="img-fluid my-2" style="max-height:100px;">
+        <p><strong>Data:</strong> {{ voucher.data_cap }} MB</p>
+        <p><strong>Duration:</strong> {{ voucher.duration_days }} days</p>
+        <p><strong>Price:</strong> {{ voucher.price }} LRD</p>
+        <p><strong>Expires:</strong> {{ voucher.valid_until.strftime('%b %d, %Y') if voucher.valid_until else 'N/A' }}</p>
+        <a href="{{ url_for('voucher.view_batch_voucher_detail', voucher_id=voucher.id) }}" class="btn btn-sm btn-outline-secondary mt-2">🔍 View</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

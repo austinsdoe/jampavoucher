@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Router" if router else "Add Router" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">
+    {{ "✏️ Edit Router" if router else "➕ Add New Router" }}
+  </h3>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control", placeholder="Router name") }}
+        {% if form.name.errors %}
+          <div class="text-danger">{{ form.name.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.location.label(class="form-label") }}
+        {{ form.location(class="form-control", placeholder="e.g. New Kru Town") }}
+        {% if form.location.errors %}
+          <div class="text-danger">{{ form.location.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.ip_address.label(class="form-label") }}
+        {{ form.ip_address(class="form-control", placeholder="192.168.88.1") }}
+        {% if form.ip_address.errors %}
+          <div class="text-danger">{{ form.ip_address.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.api_port.label(class="form-label") }}
+        {{ form.api_port(class="form-control", placeholder="8728") }}
+        {% if form.api_port.errors %}
+          <div class="text-danger">{{ form.api_port.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-4">
+        {{ form.interface.label(class="form-label") }}
+        {{ form.interface(class="form-control", placeholder="e.g. ether1") }}
+        {% if form.interface.errors %}
+          <div class="text-danger">{{ form.interface.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.api_username.label(class="form-label") }}
+        {{ form.api_username(class="form-control", placeholder="admin") }}
+        {% if form.api_username.errors %}
+          <div class="text-danger">{{ form.api_username.errors[0] }}</div>
+        {% endif %}
+      </div>
+
+      <div class="col-md-6">
+        {{ form.api_password.label(class="form-label") }}
+        {{ form.api_password(class="form-control", placeholder="Router password") }}
+        {% if form.api_password.errors %}
+          <div class="text-danger">{{ form.api_password.errors[0] }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn btn-success">💾 Save</button>
+      <a href="{{ url_for('admin.routers.manage_routers') }}" class="btn btn-secondary ms-2">⬅ Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

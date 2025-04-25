@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">📦 Voucher Batches</h3>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Batch ID</th>
+          <th>Plan</th>
+          <th>Router</th>
+          <th>Qty</th>
+          <th>Printed</th>
+          <th>Created</th>
+          <th>Export</th>
+          <th>Status</th>
+          <th>Print Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch in batches %}
+        <tr>
+          <td>{{ batch.id }}</td>
+          <td>{{ batch.plan_name }}</td>
+          <td>{{ batch.router.name }}</td>
+          <td>{{ batch.quantity }}</td>
+          <td>{{ "Yes" if batch.printed else "No" }}</td>
+          <td>{{ batch.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>
+            <a href="{{ url_for('vouchers.export_batch_pdf', batch_id=batch.id) }}" class="btn btn-sm btn-outline-primary mb-1">PDF</a>
+            <a href="{{ url_for('vouchers.export_batch_csv', batch_id=batch.id) }}" class="btn btn-sm btn-outline-secondary">CSV</a>
+          </td>
+          <td>
+            {% if batch.printed %}
+              <span class="badge bg-success">Printed</span>
+            {% else %}
+              <span class="badge bg-secondary">Not Printed</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if batch.printed %}
+              <small>
+                ✅ {{ batch.printed_by.username }} <br>
+                🕒 {{ batch.printed_at.strftime('%Y-%m-%d %H:%M') }}
+              </small>
+            {% else %}
+              ❌ Not Printed
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

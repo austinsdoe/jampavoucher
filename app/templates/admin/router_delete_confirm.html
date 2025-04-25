@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Delete Router{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 text-center">
+        <h3 class="mb-3 text-danger">⚠️ Confirm Router Deletion</h3>
+        <p>Are you sure you want to delete the router: <strong>{{ router.name }}</strong> ({{ router.ip }})?</p>
+
+        <form method="POST" action="{{ url_for('routers.delete_router', router_id=router.id) }}">
+            <input type="hidden" name="confirm" value="yes">
+            <button type="submit" class="btn btn-danger">🗑 Yes, Delete</button>
+            <a href="{{ url_for('admin.routers.manage_routers') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

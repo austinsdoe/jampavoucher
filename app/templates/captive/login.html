@@ -1,0 +1,62 @@
+{% extends 'captive/layout.html' %}
+{% block title %}Hotspot Login{% endblock %}
+
+{% block content %}
+<div class="card shadow border-0">
+  <div class="card-body p-4">
+    <h4 class="text-center text-primary fw-bold mb-2">🎫 Hotspot Access</h4>
+    <p class="text-center text-muted mb-4">Enter your voucher code or purchase one to get online.</p>
+
+    <!-- Voucher Login Form -->
+    <form method="POST"
+          action="{{ url_for('voucher_user.login_voucher') }}?mac={{ request.args.get('mac') }}&ip={{ request.args.get('ip') }}"
+          class="needs-validation" novalidate>
+      
+      <div class="mb-3">
+        <label for="voucherCode" class="form-label">Voucher Code</label>
+        <input type="text"
+               id="voucherCode"
+               name="code"
+               class="form-control text-uppercase text-center"
+               placeholder="e.g. ABC12345"
+               required autofocus>
+        <div class="invalid-feedback">
+          Please enter your voucher code.
+        </div>
+      </div>
+
+      <!-- MAC Address (hidden) -->
+      <input type="hidden" name="mac" value="{{ request.args.get('mac', '') }}">
+      <input type="hidden" name="ip" value="{{ request.args.get('ip', '') }}">
+
+      <button type="submit" class="btn btn-primary w-100">🔓 Connect</button>
+    </form>
+
+    <hr class="my-4">
+
+    <!-- Payment Options -->
+    <div class="text-center mb-3">
+      <p class="fw-bold mb-2">💳 Don't have a voucher?</p>
+    </div>
+
+    <div class="d-grid gap-2">
+      <a href="{{ url_for('payments.mtn_pay') }}" class="btn btn-warning fw-semibold">📱 MTN Mobile Money</a>
+      <a href="{{ url_for('payments.orange_pay') }}" class="btn btn-orange fw-semibold">🟧 Orange Money</a>
+      <a href="{{ url_for('payments.stripe_checkout') }}" class="btn btn-dark fw-semibold">💳 Pay with Card (Stripe)</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function (e) {
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  })();
+</script>
+{% endblock %}

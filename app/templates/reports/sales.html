@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Sales Report{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">📈 Sales Report</h2>
+
+  {% if sales %}
+  <div class="table-responsive shadow-sm border rounded">
+    <table class="table table-striped table-bordered align-middle mb-0">
+      <thead class="table-light text-center">
+        <tr>
+          <th>Date</th>
+          <th>Amount (USD)</th>
+          <th>Method</th>
+          <th>Voucher Code</th>
+        </tr>
+      </thead>
+      <tbody class="text-center">
+        {% for sale in sales %}
+        <tr>
+          <td>{{ sale.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>${{ "%.2f"|format(sale.amount) }}</td>
+          <td>{{ sale.method or '—' }}</td>
+          <td>{{ sale.voucher.code if sale.voucher else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-4">
+    No sales data found for the selected period.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

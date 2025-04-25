@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Staff Accounts{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>👥 Staff Accounts</h3>
+    <button class="btn btn-success" data-bs-toggle="collapse" data-bs-target="#addStaffForm">
+      ➕ Add Staff
+    </button>
+  </div>
+
+  <!-- Add Staff Form (Collapsible) -->
+  <div class="collapse mb-4" id="addStaffForm">
+    <div class="card card-body">
+      <form method="POST" action="{{ url_for('admin.admin_staff.create_staff') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            {{ form.username.label }}
+            {{ form.username(class="form-control", placeholder="Enter username") }}
+            {% if form.username.errors %}
+              <div class="text-danger">{{ form.username.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-4">
+            {{ form.password.label }}
+            {{ form.password(class="form-control", placeholder="Enter password") }}
+            {% if form.password.errors %}
+              <div class="text-danger">{{ form.password.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-3">
+            {{ form.role.label }}
+            {{ form.role(class="form-select") }}
+            {% if form.role.errors %}
+              <div class="text-danger">{{ form.role.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary mt-4">{{ form.submit.label.text }}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Staff Table -->
+  {% if staff %}
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Date Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in staff %}
+        <tr>
+          <td>{{ s.id }}</td>
+          <td>{{ s.username }}</td>
+          <td>
+            {% if s.role == "admin" %}
+              <span class="badge bg-danger">Admin</span>
+            {% elif s.role == "staff" %}
+              <span class="badge bg-primary">Staff</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ s.role }}</span>
+            {% endif %}
+          </td>
+          <td>{{ s.created_at.strftime('%Y-%m-%d') }}</td>
+          <td class="d-flex gap-2">
+            <!-- Edit -->
+            <a href="{{ url_for('admin.admin_staff.edit_staff', user_id=s.id) }}" class="btn btn-sm btn-outline-secondary">
+              ✏️ Edit
+            </a>
+
+            <!-- Delete -->
+            <form method="POST" action="{{ url_for('admin.admin_staff.delete_staff', user_id=s.id) }}" onsubmit="return confirm('Delete {{ s.username }}?')">
+              <button class="btn btn-sm btn-outline-danger" type="submit">🗑 Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info text-center">No staff accounts found.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Router Details - {{ router.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-3">🔍 Router Detail View: {{ router.name }}</h3>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm">
+                <h6>Status</h6>
+                <p>{{ "🟢 Online" if is_online else "🔴 Offline" }}</p>
+                <small>Uptime: {{ uptime or "N/A" }}</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm">
+                <h6>IP Address</h6>
+                <p>{{ router.ip }} : {{ router.api_port }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 shadow-sm">
+                <h6>Profiles / Queues</h6>
+                <p>{{ profile_count }} profiles, {{ queue_count }} queues</p>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mt-4">🌐 Interfaces</h5>
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>MAC</th>
+                <th>Status</th>
+                <th>Tx / Rx</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for iface in interfaces %}
+            <tr>
+                <td>{{ iface.name }}</td>
+                <td>{{ iface.type }}</td>
+                <td>{{ iface.mac_address }}</td>
+                <td>{{ iface.running }}</td>
+                <td>{{ iface.tx_byte | filesizeformat }} / {{ iface.rx_byte | filesizeformat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h5 class="mt-4">📡 Hotspot Users</h5>
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Limit (Bytes)</th>
+                <th>Profile</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in hotspot_users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.limit_bytes_total | filesizeformat }}</td>
+                <td>{{ user.profile }}</td>
+                <td>{{ user.comment }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h5 class="mt-4">🚦 Queues</h5>
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Target</th>
+                <th>Max Limit</th>
+                <th>Bytes In / Out</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for queue in queues %}
+            <tr>
+                <td>{{ queue.name }}</td>
+                <td>{{ queue.target }}</td>
+                <td>{{ queue.max_limit }}</td>
+                <td>{{ queue.bytes_in | filesizeformat }} / {{ queue.bytes_out | filesizeformat }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

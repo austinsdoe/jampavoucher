@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Welcome to Hotspot{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+  <h2 class="mb-4">Welcome to Jampa Hotspot</h2>
+  <p class="lead">Use a voucher to connect, or purchase a new one.</p>
+
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-lg-4 mb-3">
+      <a href="{{ url_for('voucher_user.user_dashboard') }}" class="btn btn-success w-100">
+        🎫 Login with Voucher
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-3">
+      <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#buyModal">
+        💳 Buy Voucher
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 💳 Buy Voucher Modal -->
+<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="buyModalLabel">Choose Payment Method</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <a href="{{ url_for('payments.mtn_pay') }}" class="btn btn-warning w-100 mb-2">📱 MTN Mobile Money</a>
+        <a href="{{ url_for('payments.orange_pay') }}" class="btn btn-orange w-100 mb-2" style="background-color: #ff6600; color: white;">🟧 Orange Money</a>
+        <a href="{{ url_for('payments.stripe_checkout') }}" class="btn btn-dark w-100">💳 Credit/Debit Card (Stripe)</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

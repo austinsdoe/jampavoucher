@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Router Analytics - {{ router.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">📊 Router Analytics: <span class="text-primary">{{ router.name }}</span></h2>
+
+  <!-- 🔌 Router Details -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card border-info shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">Router Name</h6>
+          <p class="fw-bold mb-0">{{ router.name }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">🖧 IP Address</h6>
+          <p class="fw-bold mb-0">{{ router.ip_address }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-warning shadow-sm">
+        <div class="card-body">
+          <h6 class="text-muted mb-1">📍 Location</h6>
+          <p class="fw-bold mb-0">{{ router.location or "—" }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔢 Voucher Summary -->
+  <div class="row text-center g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card text-bg-primary shadow-sm">
+        <div class="card-body py-4">
+          <h6>Total Vouchers</h6>
+          <h2 class="fw-bold">{{ total }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-bg-success shadow-sm">
+        <div class="card-body py-4">
+          <h6>Used</h6>
+          <h2 class="fw-bold">{{ used }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-bg-danger shadow-sm">
+        <div class="card-body py-4">
+          <h6>Expired</h6>
+          <h2 class="fw-bold">{{ expired }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📦 Voucher Batches Table -->
+  <div class="mt-5">
+    <h5 class="mb-3">📦 Voucher Batches</h5>
+
+    {% if batches %}
+    <div class="table-responsive shadow-sm border rounded">
+      <table class="table table-striped table-hover table-bordered align-middle mb-0">
+        <thead class="table-light text-center">
+          <tr>
+            <th>ID</th>
+            <th>Plan</th>
+            <th>Quantity</th>
+            <th>Printed</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in batches %}
+          <tr class="text-center">
+            <td><strong>{{ b.id }}</strong></td>
+            <td>{{ b.plan_name or '—' }}</td>
+            <td>{{ b.quantity }}</td>
+            <td>
+              {% if b.printed %}
+                <span class="badge bg-success">✔ Printed</span>
+              {% else %}
+                <span class="badge bg-secondary">Not Printed</span>
+              {% endif %}
+            </td>
+            <td>{{ b.created_at.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="alert alert-info text-center mt-3">
+        No voucher batches found for this router.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

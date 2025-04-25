@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Payment Success{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 600px;">
+  <div class="alert alert-success text-center shadow-sm">
+    <h4 class="alert-heading">✅ Payment Successful</h4>
+    <p class="mb-2">Your voucher has been created successfully.</p>
+    <hr>
+    <p><strong>📄 Code:</strong> <code>{{ voucher.code }}</code></p>
+    <p><strong>📦 Plan:</strong> {{ voucher.plan_name }}</p>
+    <p><strong>⏳ Expires:</strong> {{ voucher.valid_until or "First use starts countdown" }}</p>
+  </div>
+</div>
+{% endblock %}

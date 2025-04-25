@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Single Voucher{% endblock %}
+{% block content %}
+<div class="container mt-4" id="print-area">
+  <div class="card text-center shadow-sm p-4">
+    <h4>🎫 Single Voucher</h4>
+    <h2 class="display-5 fw-bold mt-2">{{ voucher.code }}</h2>
+    <img src="{{ url_for('static', filename='qr/{{ voucher.code }}.png') }}" class="img-fluid my-3" style="max-height:150px;">
+    <hr>
+    <p><strong>Plan:</strong> {{ voucher.plan_name }}</p>
+    <p><strong>Price:</strong> {{ voucher.price }} LRD</p>
+    <p><strong>Data Cap:</strong> {{ voucher.data_cap }} MB</p>
+    <p><strong>Duration:</strong> {{ voucher.duration_days }} days</p>
+    <p><strong>Status:</strong> {{ voucher.status | capitalize }}</p>
+    <p><strong>Expires:</strong> {{ voucher.valid_until.strftime('%b %d, %Y') if voucher.valid_until else 'N/A' }}</p>
+
+    <div class="mt-4 d-flex justify-content-center gap-3">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Print Voucher</button>
+
+      {% if not voucher.batch_id %}
+      <form method="POST" action="{{ url_for('admin.admin_vouchers.upload_single_voucher', voucher_id=voucher.id) }}">
+        <button type="submit" class="btn btn-success">📤 Upload to Router</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

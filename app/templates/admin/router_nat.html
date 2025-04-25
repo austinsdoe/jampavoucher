@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}NAT Rules - {{ router.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">🔁 NAT Rules for <strong>{{ router.name }}</strong></h3>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, msg in messages %}
+      <div class="alert alert-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label for="out_interface" class="form-label">Out Interface</label>
+      <select name="out_interface" class="form-select">
+        <option value="">-- Optional --</option>
+        {% for iface in interfaces %}
+          <option value="{{ iface.name }}">{{ iface.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label for="comment" class="form-label">Comment</label>
+      <input type="text" name="comment" class="form-control" placeholder="e.g. Masquerade LAN">
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button class="btn btn-primary w-100">➕ Add NAT Rule</button>
+    </div>
+  </form>
+
+  <table class="table table-bordered">
+    <thead class="table-light"><tr>
+      <th>#</th><th>Chain</th><th>Action</th><th>Out Interface</th><th>Comment</th><th>Actions</th>
+    </tr></thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ rule.chain }}</td>
+        <td>{{ rule.action }}</td>
+        <td>{{ rule.get('out-interface', '-') }}</td>
+        <td>{{ rule.get('comment', '-') }}</td>
+        <td>
+          <a href="{{ url_for('admin_router_config.delete_nat_rule', router_id=router.id, rule_id=rule['.id']) }}"
+             class="btn btn-sm btn-danger"
+             onclick="return confirm('Delete NAT rule?');">🗑️ Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

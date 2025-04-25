@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Voucher Lookup{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4">🔍 Voucher Lookup</h3>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Lookup Form -->
+  <form method="POST" class="row g-2 mb-4">
+    <div class="col-md-10">
+      <input type="text" name="code" class="form-control" placeholder="Enter voucher code" required>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-secondary w-100">Check</button>
+    </div>
+  </form>
+
+  <!-- Result Card -->
+  {% if voucher %}
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">🎟️ Voucher: <code>{{ voucher.code }}</code></h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>Plan:</strong> {{ voucher.plan_name }}</li>
+        <li class="list-group-item"><strong>Status:</strong> {{ voucher.status|capitalize }}</li>
+        <li class="list-group-item"><strong>First Used:</strong> {{ voucher.first_used_at or "Never" }}</li>
+        <li class="list-group-item"><strong>Expires:</strong> {{ voucher.valid_until or "N/A" }}</li>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

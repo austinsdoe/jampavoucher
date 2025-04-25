@@ -1,0 +1,67 @@
+{% extends 'captive/layout.html' %}
+{% block title %}Voucher Dashboard{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm text-center mt-4">
+  <div class="card-body">
+    <h5 class="mb-3">🎟️ Voucher: <code>{{ voucher.code }}</code></h5>
+
+    <p><strong>Plan:</strong> {{ voucher.plan_name }}</p>
+
+    <p>
+      <strong>Status:</strong>
+      <span class="badge bg-{{ 'success' if voucher.status == 'used' else 'secondary' }}">
+        {{ voucher.display_status }}
+      </span>
+    </p>
+
+    <p><strong>First Used:</strong> {{ start_time.strftime('%Y-%m-%d %H:%M') if start_time else "Not yet used" }}</p>
+    <p><strong>Expires:</strong> {{ expiry_time.strftime('%Y-%m-%d %H:%M') if expiry_time else "N/A" }}</p>
+
+    <p><strong>Time Remaining:</strong>
+      <span id="countdown" class="fw-bold text-primary">...</span>
+    </p>
+
+    <p><strong>Remaining Data:</strong>
+      <span id="dataRemaining" class="fw-bold text-primary">{{ remaining_mb }} MB</span>
+    </p>
+
+    <p><strong>Router:</strong> {{ voucher.router.name if voucher.router else "-" }}</p>
+
+    <a href="{{ url_for('captive.logout') }}" class="btn btn-danger w-100 mt-3">🚪 Logout</a>
+  </div>
+</div>
+
+<script>
+  const expiry = new Date("{{ expiry_time.strftime('%Y-%m-%dT%H:%M:%S') if expiry_time else '' }}").getTime();
+  const countdown = document.getElementById("countdown");
+  const remainingMB = {{ remaining_mb }};
+  const logoutUrl = "{{ url_for('captive.logout') }}";
+
+  function autoLogout(reason) {
+    countdown.innerHTML = reason;
+    countdown.classList.remove("text-primary");
+    countdown.classList.add("text-danger");
+    setTimeout(() => window.location.href = logoutUrl, 3000);
+  }
+
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = expiry - now;
+
+    if (isNaN(expiry)) return;
+    if (distance < 0) return autoLogout("Expired");
+    if (remainingMB <= 0) return autoLogout("Data Limit Reached");
+
+    const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+    countdown.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
+{% endblock %}

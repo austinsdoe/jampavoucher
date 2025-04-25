@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Routers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>🌐 Router Management</h3>
+    <a href="{{ url_for('routers.router_form') }}" class="btn btn-primary">
+      ➕ Add Router
+    </a>
+  </div>
+
+  {% if routers %}
+  <div class="table-responsive shadow-sm border rounded">
+    <table class="table table-bordered table-hover align-middle mb-0">
+      <thead class="table-light text-center">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>IP Address</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="text-center">
+        {% for router in routers %}
+        <tr>
+          <td>{{ router.id }}</td>
+          <td>{{ router.name }}</td>
+          <td>{{ router.ip_address }}</td>
+          <td>
+            {% if ping_router(router.ip_address) %}
+              <span class="badge bg-success">🟢 Online</span>
+            {% else %}
+              <span class="badge bg-secondary">⚫ Offline</span>
+            {% endif %}
+          </td>
+          <td>{{ router.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <a href="{{ url_for('routers.router_form', router_id=router.id) }}" class="btn btn-outline-primary" title="Edit Router">✏️</a>
+              <a href="{{ url_for('routers.router_analytics', router_id=router.id) }}" class="btn btn-outline-info" title="View Analytics">📊</a>
+              <a href="{{ url_for('routers.configure_router', router_id=router.id) }}" class="btn btn-outline-success" title="Configure Router">⚙️</a>
+              <a href="{{ url_for('routers.delete_router', router_id=router.id) }}" class="btn btn-outline-danger" title="Delete Router" onclick="return confirm('Are you sure you want to delete this router?');">🗑️</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info text-center mt-4">
+      No routers found. Start by adding one.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

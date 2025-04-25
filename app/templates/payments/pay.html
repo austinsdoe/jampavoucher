@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Buy Voucher{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">💳 Choose Payment Method</h3>
+
+  <div class="alert alert-info">
+    Select your preferred method below to purchase a data voucher instantly.
+  </div>
+
+  <!-- Payment Option Buttons -->
+  <div class="d-grid gap-3">
+
+    <!-- MTN -->
+    <a href="{{ url_for('payments.mtn_pay') }}" class="btn btn-mtn btn-lg fw-semibold shadow">
+      📱 MTN Mobile Money
+    </a>
+
+    <!-- Orange -->
+    <a href="{{ url_for('payments.orange_pay') }}" class="btn btn-orange btn-lg fw-semibold shadow">
+      🟧 Orange Money
+    </a>
+
+    <!-- Stripe -->
+    <a href="{{ url_for('payments.stripe_checkout') }}" class="btn btn-dark btn-lg fw-semibold shadow">
+      💳 Credit/Debit Card (Stripe)
+    </a>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .btn-orange {
+    background-color: #ff6600;
+    color: white;
+  }
+  .btn-orange:hover {
+    background-color: #e65c00;
+    color: white;
+  }
+
+  .btn-mtn {
+    background-color: #ffcc00;
+    color: #000;
+  }
+  .btn-mtn:hover {
+    background-color: #e6b800;
+    color: #000;
+  }
+
+  .btn-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .shadow {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+</style>
+{% endblock %}

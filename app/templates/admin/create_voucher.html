@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Create Voucher{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🎟️ Create Single Voucher</h2>
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+
+    <!-- Voucher Code -->
+    <div class="mb-3">
+      {{ form.code.label(class="form-label") }}
+      {{ form.code(class="form-control", placeholder="Leave blank for auto-generate") }}
+      {% if form.code.errors %}
+        <div class="text-danger">{{ form.code.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Plan Selection -->
+    <div class="mb-3">
+      {{ form.plan_id.label(class="form-label") }}
+      {{ form.plan_id(class="form-select") }}
+      {% if form.plan_id.errors %}
+        <div class="text-danger">{{ form.plan_id.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Router Selection -->
+    <div class="mb-3">
+      {{ form.router_id.label(class="form-label") }}
+      {{ form.router_id(class="form-select") }}
+      {% if form.router_id.errors %}
+        <div class="text-danger">{{ form.router_id.errors[0] }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary">Create Voucher</button>
+  </form>
+</div>
+
+<!-- Optional: Live Plan Price Display -->
+<script>
+  const planSelector = document.querySelector('[name="plan_id"]');
+  const plans = {{ plans_json | safe }};  // This should be passed in from the Flask view
+
+  planSelector?.addEventListener('change', () => {
+    const selected = plans.find(p => p.id == planSelector.value);
+    if (selected) {
+      alert(`💰 Selected Plan Price: ${selected.price} LRD`);
+    }
+  });
+</script>
+{% endblock %}

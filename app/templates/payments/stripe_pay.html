@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Buy Voucher (Card){% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 500px;">
+  <div class="card shadow-sm border-dark">
+    <div class="card-body">
+      <h4 class="card-title mb-4 text-center text-dark fw-bold">
+        💳 Pay with Credit/Debit Card
+      </h4>
+
+      <div class="alert alert-secondary text-center">
+        Enter the amount you'd like to pay. You’ll be redirected to Stripe's secure checkout.
+      </div>
+
+      <form method="POST" novalidate>
+        <div class="mb-3">
+          <label for="amount" class="form-label">💵 Amount (LRD)</label>
+          <input type="number" id="amount" name="amount" class="form-control" min="1" placeholder="Enter amount" required>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100 fw-semibold">
+          💳 Pay with Card (via Stripe)
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

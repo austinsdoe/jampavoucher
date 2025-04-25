@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">🆕 Create Voucher Batch</h3>
+
+  <form method="POST" class="card shadow-sm p-4">
+    {{ form.hidden_tag() }}
+
+    <!-- Router Selection -->
+    <div class="mb-3">
+      <label class="form-label">{{ form.router_id.label.text }}</label>
+      {{ form.router_id(class="form-select") }}
+    </div>
+
+    <!-- Plan Selection -->
+    <div class="mb-3">
+      <label class="form-label">{{ form.plan_id.label.text }}</label>
+      {{ form.plan_id(class="form-select", id="plan-select") }}
+    </div>
+
+    <!-- Custom Plan Fields (shown only if 'Custom Plan' is selected) -->
+    <div id="custom-fields" style="display: none;">
+      <div class="mb-3">
+        <label class="form-label">{{ form.custom_bandwidth.label.text }}</label>
+        {{ form.custom_bandwidth(class="form-control") }}
+        <div class="form-text">Specify total data in MB (e.g., 2000)</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">{{ form.custom_duration.label.text }}</label>
+        {{ form.custom_duration(class="form-control") }}
+        <div class="form-text">Duration in days (e.g., 7)</div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">{{ form.custom_price.label.text }}</label>
+        {{ form.custom_price(class="form-control") }}
+        <div class="form-text">Optional pricing information</div>
+      </div>
+    </div>
+
+    <!-- Quantity -->
+    <div class="mb-3">
+      <label class="form-label">{{ form.quantity.label.text }}</label>
+      {{ form.quantity(class="form-control") }}
+    </div>
+
+    <!-- Submit -->
+    <div class="d-grid">
+      <button class="btn btn-primary">{{ form.submit.label.text }}</button>
+    </div>
+  </form>
+</div>
+
+<!-- Script to show/hide custom plan fields -->
+<script>
+  const planSelect = document.getElementById("plan-select");
+  const customFields = document.getElementById("custom-fields");
+
+  function toggleCustomFields() {
+    if (planSelect.value === "custom") {
+      customFields.style.display = "block";
+    } else {
+      customFields.style.display = "none";
+    }
+  }
+
+  planSelect.addEventListener("change", toggleCustomFields);
+  document.addEventListener("DOMContentLoaded", toggleCustomFields);  // init on load
+</script>
+{% endblock %}

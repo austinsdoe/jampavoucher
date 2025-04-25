@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Sales / Revenue Report{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4">📈 Sales / Revenue Report</h3>
+
+  <form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-md-3">
+      <label for="start" class="form-label">Start Date</label>
+      <input type="date" id="start" name="start" value="{{ request.args.get('start', '') }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label for="end" class="form-label">End Date</label>
+      <input type="date" id="end" name="end" value="{{ request.args.get('end', '') }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label for="provider" class="form-label">Provider</label>
+      <select id="provider" name="provider" class="form-select">
+        <option value="">All Providers</option>
+        <option value="mtn" {% if request.args.get('provider') == 'mtn' %}selected{% endif %}>MTN</option>
+        <option value="orange" {% if request.args.get('provider') == 'orange' %}selected{% endif %}>Orange</option>
+        <option value="stripe" {% if request.args.get('provider') == 'stripe' %}selected{% endif %}>Stripe</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="router_id" class="form-label">Router</label>
+      <select id="router_id" name="router_id" class="form-select">
+        <option value="">All Routers</option>
+        {% for router in routers %}
+        <option value="{{ router.id }}" {% if request.args.get('router_id') == router.id|string %}selected{% endif %}>{{ router.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="user_id" class="form-label">Staff</label>
+      <select id="user_id" name="user_id" class="form-select">
+        <option value="">All Staff</option>
+        {% for user in users %}
+        <option value="{{ user.id }}" {% if request.args.get('user_id') == user.id|string %}selected{% endif %}>{{ user.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-12 d-flex gap-2 flex-wrap">
+      <button class="btn btn-primary">🔍 Filter</button>
+
+      <!-- Export buttons with safe query construction -->
+      <a href="{{ url_for('reports.sales_report') }}?start={{ request.args.get('start', '') }}&end={{ request.args.get('end', '') }}&provider={{ request.args.get('provider', '') }}&router_id={{ request.args.get('router_id', '') }}&user_id={{ request.args.get('user_id', '') }}&export=csv" class="btn btn-outline-secondary">
+        📤 Export CSV
+      </a>
+      <a href="{{ url_for('reports.sales_report') }}?start={{ request.args.get('start', '') }}&end={{ request.args.get('end', '') }}&provider={{ request.args.get('provider', '') }}&router_id={{ request.args.get('router_id', '') }}&user_id={{ request.args.get('user_id', '') }}&export=pdf" class="btn btn-outline-secondary">
+        📄 Export PDF
+      </a>
+    </div>
+  </form>
+
+  {% if payments %}
+  <div class="table-responsive shadow-sm border rounded">
+    <table class="table table-striped table-bordered table-sm align-middle">
+      <thead class="table-light text-center">
+        <tr>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Provider</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Router</th>
+          <th>Paid By</th>
+        </tr>
+      </thead>
+      <tbody class="text-center">
+        {% for p in payments %}
+        <tr>
+          <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>${{ "%.2f"|format(p.amount) }}</td>
+          <td>{{ p.provider|capitalize }}</td>
+          <td>{{ p.phone_number or '-' }}</td>
+          <td>{{ p.status }}</td>
+          <td>{{ p.router.name if p.router else 'N/A' }}</td>
+          <td>{{ p.staff.username if p.staff else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-4">
+    No payment records found for the selected filters.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

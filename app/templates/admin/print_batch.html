@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Print Batch #{{ batch.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="text-center">🖨️ Printable Voucher Sheet — {{ batch.name }}</h3>
+  <p class="text-center text-muted">Batch ID: #{{ batch.id }} • Created: {{ batch.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+
+  <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3 mt-4">
+    {% for v in vouchers %}
+    <div class="col">
+      <div class="border p-3 text-center bg-light rounded shadow-sm h-100">
+        <h5 class="mb-2"><code>{{ v.code }}</code></h5>
+
+        {% if v.qr_image %}
+        <img src="data:image/png;base64,{{ v.qr_image }}" width="100" height="100" class="mb-2" alt="QR Code">
+        {% endif %}
+
+        <div class="small text-muted">
+          {{ v.data_cap or (v.plan.bandwidth_limit_mb if v.plan else 'N/A') }}MB<br>
+          Expires {{ v.expires_at.strftime('%Y-%m-%d') if v.expires_at else '—' }}<br>
+          <strong>Price:</strong> {{ v.price or (v.plan.price if v.plan else '—') }} LRD
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Auto Print on Load -->
+<script>
+  window.onload = () => window.print();
+</script>
+
+<style>
+  @media print {
+    body {
+      background-color: white !important;
+    }
+    .navbar, .btn, .text-muted, h3 {
+      display: none !important;
+    }
+    .border {
+      page-break-inside: avoid;
+    }
+    .col {
+      break-inside: avoid;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  code {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .container {
+    padding-bottom: 30px;
+  }
+</style>
+{% endblock %}

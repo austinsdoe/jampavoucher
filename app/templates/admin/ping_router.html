@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3>Ping Router: {{ router.name }}</h3>
+  <p><strong>IP Address:</strong> {{ router.ip_address }}</p>
+
+  <form method="POST">
+    <button id="pingBtn" type="submit" class="btn btn-primary">Ping</button>
+  </form>
+
+  {% if result %}
+    <div class="mt-4 alert alert-info" role="alert">
+      {{ result }}
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  const btn = document.getElementById("pingBtn");
+  btn.addEventListener("click", function () {
+    btn.innerText = "Stop";
+    btn.classList.remove("btn-primary");
+    btn.classList.add("btn-danger");
+  });
+</script>
+{% endblock %}

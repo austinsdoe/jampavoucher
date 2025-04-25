@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Router API Status{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4 text-center">
+    <h3 class="mb-4">📡 MikroTik Router API Check</h3>
+
+    {% if is_online %}
+    <div class="alert alert-success">
+      <h4 class="mb-2">✅ Router is Online</h4>
+      <p>
+        <strong>{{ router.name }}</strong> ({{ router.ip_address }}) is reachable via API.
+      </p>
+      {% if uptime %}
+        <p><strong>Uptime:</strong> {{ uptime }}</p>
+      {% else %}
+        <p><em>Uptime unavailable</em></p>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-danger">
+      <h4 class="mb-2">❌ Router is Offline</h4>
+      <p>
+        Unable to connect to <strong>{{ router.name }}</strong> ({{ router.ip_address }}).
+      </p>
+      <p>Please verify IP address, credentials, and network connectivity.</p>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('routers.list_routers') }}" class="btn btn-secondary mt-4">
+      ⬅ Back to Router List
+    </a>
+  </div>
+</div>
+{% endblock %}

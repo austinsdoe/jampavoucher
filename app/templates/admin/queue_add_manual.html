@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Add Manual Queue{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">➕ Add Manual Queue</h3>
+
+    <form method="POST" action="{{ url_for('admin.add_queue_manual', router_id=router.id) }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Queue Name</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="e.g. Queue_User001" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="target" class="form-label">Target IP</label>
+            <input type="text" name="target" id="target" class="form-control" placeholder="e.g. 192.168.88.100" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="max_limit" class="form-label">Max Limit (Upload/Download)</label>
+            <input type="text" name="max_limit" id="max_limit" class="form-control" placeholder="e.g. 2M/2M" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">🚀 Create Queue</button>
+        <a href="{{ url_for('admin.view_queues', router_id=router.id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
