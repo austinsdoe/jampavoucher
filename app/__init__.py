@@ -4,6 +4,10 @@ from flask import Flask, redirect
 from dotenv import load_dotenv
 from flask_babel import Babel
 
+# 🔄 Load environment variables (safe absolute path loading)
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
+
 # 🔧 Core Extensions
 from app.extensions import db, login_manager, limiter, migrate
 from app.models.user import User
@@ -12,9 +16,6 @@ from app.utils.network import ping_router     # ✅ Used to detect online router
 
 # 🌍 Localization
 babel = Babel()
-
-# 🔄 Load environment variables
-load_dotenv()
 
 # 🧭 Modular Admin Blueprint registration
 from app.routes.register import register_routes as register_admin_routes
@@ -36,17 +37,13 @@ def create_app():
     # 🌍 Initialize localization
     babel.init_app(app)
 
-    # 🧹 Register CLI commands
-    app.cli.add_command(cleanup_expired)
-    app.cli.add_command(sync_routers_command)
-
-    # 🔌 Initialize extensions
+    # 🔌 Initialize core extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     limiter.init_app(app)
 
-    # 🔐 Login Manager
+    # 🔐 Setup Login Manager
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
@@ -54,7 +51,7 @@ def create_app():
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Please log in to access this page."
 
-    # 🧭 Register ALL route blueprints
+    # 🧭 Register all route blueprints
     register_admin_routes(app)
 
     # ⤴️ Root redirect
@@ -78,5 +75,9 @@ def create_app():
         except Exception:
             online_routers = []
         return dict(online_routers=online_routers)
+
+    # 🧹 Register CLI commands
+    app.cli.add_command(cleanup_expired)
+    app.cli.add_command(sync_routers_command)
 
     return app
