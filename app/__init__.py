@@ -57,7 +57,9 @@ def create_app():
     # ⤴️ Root redirect
     @app.route('/')
     def root_redirect():
-        return redirect('/voucher/login')
+        return redirect('/dashboard')
+
+ 
 
     # 📁 Ensure /data directory exists
     app_root = os.path.dirname(os.path.abspath(__file__))

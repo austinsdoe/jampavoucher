@@ -38,11 +38,16 @@ def router_form(router_id=None):
 
     return render_template("admin/router_form.html", form=form, router=router)
 
-# 🗑️ Delete Router
-@router_bp.route("/<int:router_id>/delete")
+# 🗑️ Delete Router (with safety check)
+@router_bp.route("/<int:router_id>/delete", methods=["POST", "GET"])
 @login_required
 @role_required("admin")
 def delete_router(router_id):
+    linked_batches = VoucherBatch.query.filter_by(router_id=router_id).count()
+    if linked_batches > 0:
+        flash(f"❌ Cannot delete router: {linked_batches} linked voucher batches exist.", "danger")
+        return redirect(url_for("admin.routers.manage_routers"))
+
     router = MikroTikRouter.query.get_or_404(router_id)
     db.session.delete(router)
     db.session.commit()

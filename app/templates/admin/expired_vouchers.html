@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Expired Vouchers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4 text-center text-md-start">🗑 Expired Vouchers</h2>
+
+  <form method="POST" action="{{ url_for('admin.expired_admin.delete_expired') }}">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="routerFilter" class="form-label">Filter by Router</label>
+        <select id="routerFilter" name="router_id" class="form-select" onchange="this.form.submit()">
+          <option value="">All Routers</option>
+          {% for router in routers %}
+          <option value="{{ router.id }}" {% if request.args.get('router_id', type=int) == router.id %}selected{% endif %}>
+            {{ router.name }} ({{ router.ip }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {% if vouchers %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            <th>Code</th>
+            <th>Router</th>
+            <th>First Used</th>
+            <th>Data Cap</th>
+            <th>Time Cap</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for voucher in vouchers %}
+          <tr>
+            <td><input type="checkbox" name="voucher_codes" value="{{ voucher.code }}"></td>
+            <td><code>{{ voucher.code }}</code></td>
+            <td>{{ voucher.router.name if voucher.router else "N/A" }}</td>
+            <td>{{ voucher.first_used_at.strftime('%Y-%m-%d %H:%M') if voucher.first_used_at else "N/A" }}</td>
+            <td>{{ voucher.plan.data_limit_mb }} MB</td>
+            <td>{{ voucher.plan.duration_days }} days</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-danger">🗑 Delete Selected</button>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">No expired vouchers found.</div>
+    {% endif %}
+  </form>
+</div>
+
+<script>
+  function toggleAll(source) {
+    const checkboxes = document.getElementsByName('voucher_codes');
+    for (let i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].checked = source.checked;
+    }
+  }
+</script>
+{% endblock %}

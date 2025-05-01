@@ -14,7 +14,7 @@ class DevConfig(BaseConfig):
     ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "fxD7I7Vfm_Jk4JwoOHzIFmcBVulNiBPNelif9AXFdO4=")
 
     # Database settings
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://jampa:Schollbo11@localhost:5432/jampavoucher")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://austin:Schollbo11@localhost:5432/mikrotikdb")
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

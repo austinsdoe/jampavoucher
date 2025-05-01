@@ -2,10 +2,24 @@
 {% block title %}Hotspot Login{% endblock %}
 
 {% block content %}
-<div class="card shadow border-0">
+<div class="card shadow border-0 mt-4">
   <div class="card-body p-4">
-    <h4 class="text-center text-primary fw-bold mb-2">🎫 Hotspot Access</h4>
-    <p class="text-center text-muted mb-4">Enter your voucher code or purchase one to get online.</p>
+    <div class="text-center mb-4">
+      <h4 class="text-primary fw-bold">🎫 Hotspot Access</h4>
+      <p class="text-muted">Enter your voucher code or purchase one to get online.</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     <!-- Voucher Login Form -->
     <form method="POST"
@@ -25,7 +39,7 @@
         </div>
       </div>
 
-      <!-- MAC Address (hidden) -->
+      <!-- MAC and IP Address (hidden) -->
       <input type="hidden" name="mac" value="{{ request.args.get('mac', '') }}">
       <input type="hidden" name="ip" value="{{ request.args.get('ip', '') }}">
 
@@ -35,13 +49,14 @@
     <hr class="my-4">
 
     <!-- Payment Options -->
-    <div class="text-center mb-3">
-      <p class="fw-bold mb-2">💳 Don't have a voucher?</p>
+    <div class="text-center mb-2">
+      <p class="fw-bold mb-1">💳 Don't have a voucher?</p>
+      <p class="text-muted small">Choose a payment method to buy one instantly</p>
     </div>
 
     <div class="d-grid gap-2">
       <a href="{{ url_for('payments.mtn_pay') }}" class="btn btn-warning fw-semibold">📱 MTN Mobile Money</a>
-      <a href="{{ url_for('payments.orange_pay') }}" class="btn btn-orange fw-semibold">🟧 Orange Money</a>
+      <a href="{{ url_for('payments.orange_pay') }}" class="btn btn-orange fw-semibold" style="background-color: #ff6f00; color: white;">🟧 Orange Money</a>
       <a href="{{ url_for('payments.stripe_checkout') }}" class="btn btn-dark fw-semibold">💳 Pay with Card (Stripe)</a>
     </div>
   </div>

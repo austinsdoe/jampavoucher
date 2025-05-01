@@ -52,7 +52,7 @@ def print_single_voucher(voucher_id):
     voucher.qr_image = _generate_qr_base64(voucher.code)
     return render_template("admin/print_single_voucher.html", voucher=voucher)
 
-# 🎟️ View Single Vouchers with Filters
+# 🎟️ View Single Vouchers
 @voucher_bp.route("/single-vouchers")
 @login_required
 @role_required("admin")
@@ -165,7 +165,7 @@ def voucher_batches():
     routers = MikroTikRouter.query.order_by(MikroTikRouter.name.asc()).all()
     return render_template("admin/voucher_batches.html", batches=batches, routers=routers, search=search, selected_router=router_filter)
 
-# 📤 Upload Batch to Router (guest-hotspot)
+# 📤 Upload Batch to Router
 @voucher_bp.route("/batches/<int:batch_id>/upload", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -198,7 +198,7 @@ def upload_batch_to_router(batch_id):
 
     return redirect(url_for("admin.admin_vouchers.batch_detail", batch_id=batch.id))
 
-# 📤 Upload Single Voucher (guest-hotspot)
+# 📤 Upload Single Voucher
 @voucher_bp.route("/vouchers/<int:voucher_id>/upload", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -274,3 +274,27 @@ def _generate_qr_base64(data):
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+# 🗑️ Batch Deletion Endpoint
+@voucher_bp.route("/delete-batches", methods=["POST"])
+@login_required
+@role_required("admin")
+def delete_batches():
+    batch_ids = request.form.getlist("batch_ids")
+    if not batch_ids:
+        flash("⚠️ No batches selected for deletion.", "warning")
+        return redirect(url_for("admin.admin_vouchers.voucher_batches"))
+
+    deleted = 0
+    for batch_id in batch_ids:
+        batch = VoucherBatch.query.get(batch_id)
+        if batch:
+            try:
+                db.session.delete(batch)
+                deleted += 1
+            except Exception as e:
+                print(f"[❌] Failed to delete batch {batch_id}: {e}")
+
+    db.session.commit()
+    flash(f"✅ Deleted {deleted} batch(es).", "success")
+    return redirect(url_for("admin.admin_vouchers.voucher_batches"))

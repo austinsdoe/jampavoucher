@@ -5,7 +5,6 @@ import traceback
 from ipaddress import IPv4Network
 import os
 
-
 class MikroTikAPI:
     def __init__(self, ip, username, password, port=8728):
         self.ip = ip
@@ -90,9 +89,7 @@ class MikroTikAPI:
         except Exception as e:
             if "invalid user name or password" in str(e).lower():
                 try:
-                    api_pool = RouterOsApiPool(
-                        ip, username=username, password=password, port=port, plaintext_login=True
-                    )
+                    api_pool = RouterOsApiPool(ip, username=username, password=password, port=port, plaintext_login=True)
                     api = api_pool.get_api()
                     api_pool.disconnect()
                     return True
@@ -212,23 +209,6 @@ class MikroTikAPI:
             self.handle_error("get_voucher_usage", e)
             return None
 
-    def activate_hotspot_user(self, username, mac, ip=None, server="hotspot1"):
-        try:
-            self.ensure_connection()
-            data = {
-                "server": server,
-                "user": username,
-                "mac-address": mac
-            }
-            if ip:
-                data["address"] = ip
-            self.api.get_resource("/ip/hotspot/active").add(**data)
-            self.log_action("Activated hotspot user", data)
-            return True
-        except Exception as e:
-            self.handle_error("activate_hotspot_user", e)
-            return False
-
     def disconnect_user(self, username):
         try:
             self.ensure_connection()
@@ -244,3 +224,73 @@ class MikroTikAPI:
         except Exception as e:
             self.handle_error("disconnect_user", e)
             return False
+
+    def activate_hotspot_user(self, username, mac=None, server="guest-hotspot", limit_bytes_total=None, limit_uptime=None):
+        self.ensure_connection()
+        try:
+            user_resource = self.api.get_resource("/ip/hotspot/user")
+            user_data = {
+                "name": username,
+                "password": username,
+                "server": server,
+                "profile": "default",
+            }
+            if limit_bytes_total:
+                user_data["limit-bytes-total"] = str(limit_bytes_total)
+            if limit_uptime:
+                user_data["limit-uptime"] = limit_uptime
+            if mac and isinstance(mac, str) and mac.lower() != "none" and mac.strip() != "":
+                user_data["mac-address"] = mac
+
+            user_resource.add(**user_data)
+            print(f"[✅] Hotspot user created: {username}")
+        except Exception as e:
+            print(f"[❌] Failed to create hotspot user {username}: {e}")
+
+    def enable_or_create_user(self, username, password=None, profile="default", server="guest-hotspot",
+                              limit_bytes_total=None, limit_uptime=None, mac=None):
+        self.ensure_connection()
+        password = password or username
+        user_resource = self.api.get_resource("/ip/hotspot/user")
+        try:
+            existing = user_resource.get(name=username)
+            if existing:
+                user_id = existing[0][".id"]
+                user_resource.set(id=user_id, disabled="no")
+                print(f"[✅] Re-enabled existing user: {username}")
+                return
+            user_data = {
+                "name": username,
+                "password": password,
+                "server": server,
+                "profile": profile,
+                "disabled": "no"
+            }
+            if limit_bytes_total:
+                user_data["limit-bytes-total"] = str(limit_bytes_total)
+            if limit_uptime:
+                user_data["limit-uptime"] = limit_uptime
+            if mac and mac.strip().lower() != "none":
+                user_data["mac-address"] = mac
+
+            user_resource.add(**user_data)
+            print(f"[✅] Created and enabled new user: {username}")
+        except Exception as e:
+            self.handle_error("enable_or_create_user", e)
+
+    def force_active_login(self, username, ip_address, mac_address=None):
+        self.ensure_connection()
+        login_data = {
+            "user": username,
+            "address": ip_address,
+        }
+        if mac_address:
+            login_data["mac-address"] = mac_address
+
+        try:
+            result = self.api.get_resource("/ip/hotspot/active/login").add(**login_data)
+            self.log_action("force_active_login", {"user": username, "ip": ip_address, "mac": mac_address})
+            return result
+        except Exception as e:
+            self.handle_error("force_active_login", e)
+            return None

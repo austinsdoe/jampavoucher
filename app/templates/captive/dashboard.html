@@ -28,7 +28,7 @@
 
     <p><strong>Router:</strong> {{ voucher.router.name if voucher.router else "-" }}</p>
 
-    <a href="{{ url_for('captive.logout') }}" class="btn btn-danger w-100 mt-3">🚪 Logout</a>
+    <a href="{{ url_for('voucher_user.logout_voucher') }}" class="btn btn-danger w-100 mt-3">🚪 Logout</a>
   </div>
 </div>
 
@@ -36,7 +36,7 @@
   const expiry = new Date("{{ expiry_time.strftime('%Y-%m-%dT%H:%M:%S') if expiry_time else '' }}").getTime();
   const countdown = document.getElementById("countdown");
   const remainingMB = {{ remaining_mb }};
-  const logoutUrl = "{{ url_for('captive.logout') }}";
+  const logoutUrl = "{{ url_for('voucher_user.logout_voucher') }}";
 
   function autoLogout(reason) {
     countdown.innerHTML = reason;
@@ -50,8 +50,8 @@
     const distance = expiry - now;
 
     if (isNaN(expiry)) return;
-    if (distance < 0) return autoLogout("Expired");
-    if (remainingMB <= 0) return autoLogout("Data Limit Reached");
+    if (distance < 0) return autoLogout("⏰ Expired");
+    if (remainingMB <= 0) return autoLogout("📉 Data Limit Reached");
 
     const d = Math.floor(distance / (1000 * 60 * 60 * 24));
     const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

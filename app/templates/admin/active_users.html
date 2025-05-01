@@ -1,73 +1,37 @@
-{% extends 'base.html' %}
-{% block title %}Active Hotspot Users{% endblock %}
+{% extends "base.html" %}
+{% block title %}Active Users - {{ router.name }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h3 class="mb-3">📡 Active Hotspot Users</h3>
-
-    <form method="GET" class="mb-3">
-        <div class="row">
-            <div class="col-md-4">
-                <select name="router_id" class="form-select">
-                    <option value="">🔀 Filter by Router</option>
-                    {% for router in routers %}
-                        <option value="{{ router.id }}" {% if router.id == selected_router_id %}selected{% endif %}>
-                            {{ router.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary">🔍 Filter</button>
-            </div>
-            <div class="col-md-4">
-                {% if selected_router_id %}
-                    <a href="{{ url_for('routers.run_notify_script', router_id=selected_router_id) }}"
-                       class="btn btn-outline-warning">
-                        🛰 Run Notify Script for {{
-                            routers | selectattr('id', 'equalto', selected_router_id) | first.name
-                        }}
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </form>
-
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
-            <tr>
-                <th>Voucher Code</th>
-                <th>IP Address</th>
-                <th>MAC Address</th>
-                <th>Uptime</th>
-                <th>Bytes In</th>
-                <th>Bytes Out</th>
-                <th>Router</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in active_users %}
-                <tr>
-                    <td>{{ user.user }}</td>
-                    <td>{{ user.address }}</td>
-                    <td>{{ user.mac_address }}</td>
-                    <td>{{ user.uptime }}</td>
-                    <td>{{ user.bytes_in | filesizeformat }}</td>
-                    <td>{{ user.bytes_out | filesizeformat }}</td>
-                    <td>{{ user.router_name }}</td>
-                    <td>
-                        <form method="POST" action="{{ url_for('hotspot.disconnect_user', router_id=user.router_id, username=user.user) }}">
-                            <button class="btn btn-sm btn-danger" onclick="return confirm('Disconnect {{ user.user }}?')">Disconnect</button>
-                        </form>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8" class="text-center">No active users found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
+  <h3>🔌 Active Users for {{ router.name }}</h3>
+  <hr>
+  {% if active_users %}
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>IP</th>
+          <th>MAC</th>
+          <th>Uptime</th>
+          <th>Bytes In</th>
+          <th>Bytes Out</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in active_users %}
+          <tr>
+            <td>{{ user['user'] }}</td>
+            <td>{{ user['address'] }}</td>
+            <td>{{ user['mac-address'] }}</td>
+            <td>{{ user['uptime'] }}</td>
+            <td>{{ user['bytes-in'] }}</td>
+            <td>{{ user['bytes-out'] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
+  {% else %}
+    <div class="alert alert-info">No active users found.</div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -16,7 +16,7 @@ class ProdConfig(BaseConfig):
     # Database settings
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL",
-        "postgresql://jampa:Schollbo11@localhost:5432/jampavoucher"
+        "postgresql://austin:Schollbo11@localhost:5432/mikrotikdb"
     )
     
     SQLALCHEMY_ECHO = False  # Do not log SQL statements

@@ -11,7 +11,9 @@
       {'title': '🌐 Routers', 'value': total_routers, 'url': url_for('admin.routers.manage_routers'), 'color': 'primary', 'label': 'Manage Routers'},
       {'title': '🎟️ Vouchers', 'value': total_vouchers, 'url': url_for('admin.admin_vouchers.voucher_batches'), 'color': 'success', 'label': 'View Batches'},
       {'title': '👷 Staff Accounts', 'value': total_staff, 'url': url_for('admin.admin_staff.staff_accounts'), 'color': 'warning', 'label': 'Manage Staff'},
-      {'title': '👥 Active Users', 'value': active_users_count, 'url': url_for('captive.voucher_user_dashboard'), 'color': 'info', 'label': 'View Active'}
+      {'title': '👥 Active Users', 'value': active_users_count, 'url': '#', 'color': 'info', 'label': 'View Active', 'modal': 'activeUsersModal'},
+      {'title': '🗑 Expired Vouchers', 'value': expired_voucher_count, 'url': url_for('admin.expired_admin.expired_vouchers'), 'color': 'danger', 'label': 'Manage Expired'},
+      {'title': '📂 Vouchers by Router', 'value': total_vouchers, 'url': url_for('admin.vouchers_by_router.all_vouchers'), 'color': 'secondary', 'label': 'View by Router'}
     ] %}
     {% for card in cards %}
     <div class="col-sm-6 col-md-3">
@@ -19,11 +21,42 @@
         <div class="card-body text-center">
           <h6 class="text-muted">{{ card.title }}</h6>
           <h3 class="fw-bold">{{ card.value }}</h3>
-          <a href="{{ card.url }}" class="btn btn-outline-{{ card.color }} btn-sm w-100 mt-2">{{ card.label }}</a>
+          <a href="{{ card.url }}"
+             class="btn btn-outline-{{ card.color }} btn-sm w-100 mt-2"
+             {% if card.modal %} data-bs-toggle="modal" data-bs-target="#{{ card.modal }}" {% endif %}>
+            {{ card.label }}
+          </a>
         </div>
       </div>
     </div>
     {% endfor %}
+  </div>
+
+  <!-- Active Users Modal -->
+  <div class="modal fade" id="activeUsersModal" tabindex="-1" aria-labelledby="activeUsersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title" id="activeUsersModalLabel">Select Router for Active Users</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="activeUsersForm">
+            <div class="mb-3">
+              <label for="routerSelect" class="form-label">Router</label>
+              <select id="routerSelect" class="form-select" required>
+                {% for router in routers %}
+                <option value="{{ router.id }}">{{ router.name }} ({{ router.ip }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn btn-info">🔍 View Active Users</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Charts -->
@@ -50,9 +83,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const labels = {{ chart_labels | tojson }};
-    const salesData = {{ chart_sales | tojson }};
-    const usageData = {{ chart_usage | tojson }};
+    const labels = {{ chart_labels | default([]) | tojson }};
+    const salesData = {{ chart_sales | default([]) | tojson }};
+    const usageData = {{ chart_usage | default([]) | tojson }};
 
     new Chart(document.getElementById('salesChart'), {
       type: 'line',
@@ -153,9 +186,19 @@
   <hr class="my-5">
   <h4 class="mb-3 text-center text-md-start">📑 Reports</h4>
   <div class="list-group mb-5">
-    <a href="{{ url_for('reports.sales_report') }}" class="list-group-item list-group-item-action">📈 Sales Report</a>
-    <a href="{{ url_for('reports.usage_report') }}" class="list-group-item list-group-item-action">📊 Usage Report</a>
-    <a href="{{ url_for('reports.staff_report') }}" class="list-group-item list-group-item-action">👷 Staff Performance</a>
+    <a href="{{ url_for('admin.admin_reports.sales_report') }}" class="list-group-item list-group-item-action">📈 Sales Report</a>
+    <a href="{{ url_for('admin.admin_reports.usage_report') }}" class="list-group-item list-group-item-action">📊 Usage Report</a>
+    <a href="{{ url_for('admin.admin_reports.staff_report') }}" class="list-group-item list-group-item-action">👷 Staff Performance</a>
   </div>
 </div>
+
+<!-- Modal JS Redirect Logic -->
+<script>
+  document.getElementById("activeUsersForm")?.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const routerId = document.getElementById("routerSelect").value;
+    const redirectUrl = `{{ url_for('admin.active_users.list_active_users') }}?router_id=${routerId}`;
+    window.location.href = redirectUrl;
+  });
+</script>
 {% endblock %}

@@ -1,41 +1,60 @@
-{% extends "captive/layout.html" %}
-{% block content %}
-<div class="container mt-4">
-  <h4 class="mb-4 text-center">🎫 Voucher Dashboard</h4>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voucher Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/static/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <div class="text-center mb-4">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Jampa Connect" style="max-height: 80px;">
+      <h3 class="mt-3 text-primary fw-bold">Voucher Dashboard</h3>
+      <p class="text-muted">You're connected to the internet</p>
+    </div>
 
-  <div class="card shadow">
-    <div class="card-body">
-      <div class="row mb-2">
-        <div class="col-6"><strong>Code:</strong></div>
-        <div class="col-6 text-end"><code>{{ voucher.code }}</code></div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-6"><strong>Status:</strong></div>
-        <div class="col-6 text-end">{{ voucher.status|capitalize }}</div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-6"><strong>Start Time:</strong></div>
-        <div class="col-6 text-end">{{ start_time.strftime('%Y-%m-%d %H:%M') if start_time else 'N/A' }}</div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-6"><strong>Expires:</strong></div>
-        <div class="col-6 text-end">{{ expiry_time.strftime('%Y-%m-%d %H:%M') if expiry_time else 'N/A' }}</div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-6"><strong>Remaining Bandwidth:</strong></div>
-        <div class="col-6 text-end">{{ remaining_mb }} MB</div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-6"><strong>Time Remaining:</strong></div>
-        <div class="col-6 text-end"><span id="countdown">Calculating...</span></div>
-      </div>
+    <div class="card shadow">
+      <div class="card-body">
+        <div class="row mb-2">
+          <div class="col-6"><strong>Voucher Code:</strong></div>
+          <div class="col-6 text-end"><code>{{ voucher.code }}</code></div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-6"><strong>Status:</strong></div>
+          <div class="col-6 text-end text-success fw-bold">{{ voucher.status|capitalize }}</div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-6"><strong>Used Data:</strong></div>
+          <div class="col-6 text-end"><span id="usedMB">{{ used_mb }} MB</span></div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-6"><strong>Remaining Data:</strong></div>
+          <div class="col-6 text-end fw-bold text-primary"><span id="remainingMB">{{ remaining_mb }} MB</span></div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-6"><strong>Purchased Data:</strong></div>
+          <div class="col-6 text-end fw-semibold"><span id="purchasedMB">{{ voucher.plan.bandwidth_limit_mb }} MB</span></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Usage</label>
+          <div class="progress">
+            <div id="usageBar" class="progress-bar bg-success" role="progressbar"
+                 style="width: {{ 100 * used_mb / (used_mb + remaining_mb) if (used_mb + remaining_mb) > 0 else 0 }}%"
+                 aria-valuenow="{{ used_mb }}" aria-valuemin="0" aria-valuemax="{{ used_mb + remaining_mb }}"></div>
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-6"><strong>Time Remaining:</strong></div>
+          <div class="col-6 text-end"><span id="countdown">Calculating...</span></div>
+        </div>
 
-      <div class="mt-4 text-center">
-        <a href="{{ url_for('voucher_user.logout_voucher') }}" class="btn btn-danger w-100">Logout</a>
+        <div class="text-center mt-4">
+          <a href="{{ url_for('voucher_user.logout_voucher', username=voucher.code, mac=request.args.get('mac')) }}" class="btn btn-danger w-100">🔓 Logout</a>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 <script>
   const expiry = new Date("{{ expiry_time.strftime('%Y-%m-%dT%H:%M:%S') if expiry_time else '' }}").getTime();
@@ -47,6 +66,7 @@
 
     if (distance < 0) {
       countdown.innerHTML = "Expired";
+      countdown.classList.add("text-danger");
       return;
     }
 
@@ -60,5 +80,36 @@
 
   updateCountdown();
   setInterval(updateCountdown, 1000);
+
+  function refreshUsage() {
+    const code = "{{ voucher.code }}";
+    const mac = "{{ request.args.get('mac') }}";
+    fetch(`/voucher/usage?username=${code}&mac=${mac}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.used_mb !== undefined && data.remaining_mb !== undefined && data.purchased_mb !== undefined) {
+          document.getElementById("usedMB").innerText = `${data.used_mb} MB`;
+          document.getElementById("remainingMB").innerText = `${data.remaining_mb} MB`;
+          document.getElementById("purchasedMB").innerText = `${data.purchased_mb} MB`;
+
+          const total = data.purchased_mb;
+          const percent = total > 0 ? (100 * data.used_mb / total).toFixed(1) : 0;
+
+          const bar = document.getElementById("usageBar");
+          bar.style.width = `${percent}%`;
+          bar.setAttribute("aria-valuenow", data.used_mb);
+          bar.setAttribute("aria-valuemax", total);
+
+          bar.classList.remove("bg-success", "bg-warning", "bg-danger");
+          if (percent < 60) bar.classList.add("bg-success");
+          else if (percent < 90) bar.classList.add("bg-warning");
+          else bar.classList.add("bg-danger");
+        }
+      })
+      .catch(err => console.warn("Live usage refresh failed", err));
+  }
+
+  setInterval(refreshUsage, 30000);
 </script>
-{% endblock %}
+</body>
+</html>
