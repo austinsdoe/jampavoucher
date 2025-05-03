@@ -158,6 +158,38 @@
     </div>
   </div>
 
+  <!-- 🆕 Voucher Usage & Revenue per Router -->
+  <hr class="my-5">
+  <h4 class="mb-3 text-center text-md-start">📶 Voucher Usage & Revenue (per Router)</h4>
+  <div class="card shadow-sm border-success">
+    <div class="card-body table-responsive">
+      {% if per_router_stats %}
+      <table class="table table-bordered table-striped align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Router Name</th>
+            <th>Vouchers Used</th>
+            <th>Data Used (MB)</th>
+            <th>Total Revenue (LRD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stat in per_router_stats %}
+          <tr>
+            <td>{{ stat.router_name }}</td>
+            <td>{{ stat.vouchers_used }}</td>
+            <td>{{ "%.2f"|format(stat.mb_used or 0) }}</td>
+            <td>{{ "%.2f"|format(stat.revenue or 0) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-muted">No usage or revenue data available yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
   <!-- Quick Actions -->
   <hr class="my-5">
   <h4 class="mb-3 text-center text-md-start">⚙️ Quick Actions</h4>

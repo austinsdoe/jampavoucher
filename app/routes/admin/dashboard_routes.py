@@ -14,7 +14,7 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 @role_required("admin")
 def dashboard():
     """
-    Admin dashboard view showing summary stats and 7-day charts.
+    Admin dashboard view showing summary stats, 7-day charts, and usage/revenue by router.
     """
     today = datetime.utcnow().date()
     last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
@@ -59,6 +59,21 @@ def dashboard():
     expired_voucher_count = Voucher.query.filter_by(status="expired").count()
     voucher = Voucher.query.order_by(Voucher.created_at.desc()).first()
 
+    # 📊 Usage and revenue per router
+    per_router_stats = (
+        db.session.query(
+            MikroTikRouter.name.label("router_name"),
+            func.count(Voucher.id).label("vouchers_used"),
+            func.sum(Voucher.used_mb).label("mb_used"),
+            func.sum(Voucher.price).label("revenue")
+        )
+        .join(MikroTikRouter, MikroTikRouter.id == Voucher.used_on_router_id)
+        .filter(Voucher.status.in_(["used", "expired"]))
+        .group_by(MikroTikRouter.name)
+        .order_by(MikroTikRouter.name)
+        .all()
+    )
+
     return render_template("admin/dashboard.html",
         total_routers=total_routers,
         total_vouchers=total_vouchers,
@@ -69,7 +84,8 @@ def dashboard():
         chart_labels=labels,
         chart_sales=[sales_by_day[d] for d in last_7_days],
         chart_usage=[usage_by_day[d] for d in last_7_days],
-        voucher=voucher
+        voucher=voucher,
+        per_router_stats=per_router_stats
     )
 
 # ✅ Redirect /admin or /admin/home to /admin/dashboard
