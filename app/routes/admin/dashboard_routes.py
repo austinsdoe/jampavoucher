@@ -1,3 +1,5 @@
+# app/routes/admin/dashboard.py
+
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required
 from datetime import datetime, timedelta
@@ -59,20 +61,24 @@ def dashboard():
     expired_voucher_count = Voucher.query.filter_by(status="expired").count()
     voucher = Voucher.query.order_by(Voucher.created_at.desc()).first()
 
-    # 📊 Usage and revenue per router
-    per_router_stats = (
-        db.session.query(
-            MikroTikRouter.name.label("router_name"),
-            func.count(Voucher.id).label("vouchers_used"),
-            func.sum(Voucher.used_mb).label("mb_used"),
-            func.sum(Voucher.price).label("revenue")
+    # 📊 Usage and revenue per router (based on router voucher was created for)
+    try:
+        per_router_stats = (
+            db.session.query(
+                MikroTikRouter.name.label("router_name"),
+                func.count(Voucher.id).label("vouchers_used"),
+                func.sum(Voucher.used_mb).label("mb_used"),
+                func.sum(Voucher.price).label("revenue")
+            )
+            .join(MikroTikRouter, MikroTikRouter.id == Voucher.router_id)
+            .filter(Voucher.status.in_(["used", "expired", "inuse"]))
+            .group_by(MikroTikRouter.name)
+            .order_by(MikroTikRouter.name)
+            .all()
         )
-        .join(MikroTikRouter, MikroTikRouter.id == Voucher.used_on_router_id)
-        .filter(Voucher.status.in_(["used", "expired"]))
-        .group_by(MikroTikRouter.name)
-        .order_by(MikroTikRouter.name)
-        .all()
-    )
+    except Exception as e:
+        per_router_stats = []
+        flash(f"⚠️ Failed to calculate per-router stats: {e}", "warning")
 
     return render_template("admin/dashboard.html",
         total_routers=total_routers,

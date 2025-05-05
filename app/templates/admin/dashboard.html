@@ -32,7 +32,7 @@
     {% endfor %}
   </div>
 
-  <!-- Active Users Modal -->
+  <!-- Modal to Select Router for Active Users -->
   <div class="modal fade" id="activeUsersModal" tabindex="-1" aria-labelledby="activeUsersModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content shadow">
@@ -59,7 +59,7 @@
     </div>
   </div>
 
-  <!-- Charts -->
+  <!-- Charts Section -->
   <hr class="my-5">
   <h4 class="mb-3 text-center text-md-start">📈 Activity Overview (Last 7 Days)</h4>
   <div class="row g-4 mb-4">
@@ -81,6 +81,7 @@
     </div>
   </div>
 
+  <!-- Sales & Usage Charts Logic -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const labels = {{ chart_labels | default([]) | tojson }};
@@ -120,16 +121,12 @@
   <!-- Router Status -->
   <hr class="my-5">
   <div class="card shadow-sm border-info">
-    <div class="card-header bg-info text-white">
-      <strong>📡 MikroTik Router Status</strong>
-    </div>
+    <div class="card-header bg-info text-white"><strong>📡 MikroTik Router Status</strong></div>
     <div class="card-body">
       {% if routers %}
       <div class="table-responsive">
         <table class="table table-bordered align-middle">
-          <thead class="table-light">
-            <tr><th>Name</th><th>IP Address</th><th>Status</th></tr>
-          </thead>
+          <thead class="table-light"><tr><th>Name</th><th>IP Address</th><th>Status</th></tr></thead>
           <tbody>
             {% for router in routers %}
             <tr>
@@ -158,7 +155,7 @@
     </div>
   </div>
 
-  <!-- 🆕 Voucher Usage & Revenue per Router -->
+  <!-- Voucher Usage & Revenue Per Router -->
   <hr class="my-5">
   <h4 class="mb-3 text-center text-md-start">📶 Voucher Usage & Revenue (per Router)</h4>
   <div class="card shadow-sm border-success">
@@ -166,12 +163,7 @@
       {% if per_router_stats %}
       <table class="table table-bordered table-striped align-middle">
         <thead class="table-light">
-          <tr>
-            <th>Router Name</th>
-            <th>Vouchers Used</th>
-            <th>Data Used (MB)</th>
-            <th>Total Revenue (LRD)</th>
-          </tr>
+          <tr><th>Router Name</th><th>Vouchers Used</th><th>Data Used (MB)</th><th>Total Revenue (LRD)</th></tr>
         </thead>
         <tbody>
           {% for stat in per_router_stats %}
@@ -224,7 +216,6 @@
   </div>
 </div>
 
-<!-- Modal JS Redirect Logic -->
 <script>
   document.getElementById("activeUsersForm")?.addEventListener("submit", function (e) {
     e.preventDefault();

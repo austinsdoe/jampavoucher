@@ -1,6 +1,6 @@
 from flask import Flask
 
-# Models — useful for shell context or CLI tasks
+# Models (optional for CLI or shell context)
 from app.models.user import User
 from app.models.router import MikroTikRouter
 from app.models.voucher import Voucher
@@ -10,7 +10,7 @@ from app.models.payment import Payment
 from app.models.plan import Plan
 
 # Blueprints
-from app.routes.admin import admin_bp                  # includes all /admin subroutes
+from app.routes.admin import admin_bp
 from app.routes.auth import auth_bp
 from app.routes.analytics import analytics_bp
 from app.routes.reports import reports_bp
@@ -21,7 +21,10 @@ from app.routes.payments import payments_bp
 from app.routes.vouchers import vouchers_bp
 from app.routes.mikrotik_api import mikrotik_api_bp
 from app.routes.diagnostic import diagnostic_bp
-from app.routes.api import api_bp   # ✅ FLAT FILE import
+
+# ✅ CORRECTED IMPORT for /api/voucher/status
+from app.routes.api.voucher_status import api_bp
+from app.routes.api.test_ping import ping_test
 
 def register_routes(app: Flask):
     app.register_blueprint(admin_bp)
@@ -35,4 +38,5 @@ def register_routes(app: Flask):
     app.register_blueprint(vouchers_bp)
     app.register_blueprint(mikrotik_api_bp)
     app.register_blueprint(diagnostic_bp)
-    app.register_blueprint(api_bp)  # ✅ Register flat API route
+    app.register_blueprint(api_bp)        # ✅ /api/voucher/status is now correctly registered
+    app.register_blueprint(ping_test)

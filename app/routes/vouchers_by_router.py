@@ -5,10 +5,11 @@ from app.models.router import MikroTikRouter
 from app.extensions import db
 from app.decorators import role_required
 
-# 🧭 Mounted under /vouchers
+# 🧭 Blueprint mounted under /vouchers
 vouchers_by_router_bp = Blueprint("vouchers_by_router", __name__, url_prefix="/vouchers")
 
-# 📄 View all vouchers by router
+
+# 📄 View all vouchers filtered by router
 @vouchers_by_router_bp.route("/")
 @login_required
 @role_required("admin")
@@ -20,11 +21,15 @@ def all_vouchers():
         query = query.filter_by(router_id=router_id)
 
     vouchers = query.order_by(Voucher.created_at.desc()).all()
-    routers = MikroTikRouter.query.all()
+    routers = MikroTikRouter.query.order_by(MikroTikRouter.name.asc()).all()
 
-    return render_template("admin/vouchers_by_router.html", vouchers=vouchers, routers=routers)
+    return render_template("admin/vouchers_by_router.html",
+        vouchers=vouchers,
+        routers=routers,
+        selected_router_id=router_id)
 
-# 🗑️ Delete selected vouchers (any status)
+
+# 🗑️ Delete selected vouchers
 @vouchers_by_router_bp.route("/delete", methods=["POST"])
 @login_required
 @role_required("admin")

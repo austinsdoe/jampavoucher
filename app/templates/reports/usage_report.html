@@ -7,71 +7,68 @@
     <h3>📊 Voucher Usage Report</h3>
   </div>
 
+  <!-- Filter Form -->
   <form method="get" class="row g-3 mb-4">
     <div class="col-md-3">
-      <label for="start_date" class="form-label">Start Date</label>
-      <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+      <label for="start" class="form-label">Start Date</label>
+      <input type="date" id="start" name="start" class="form-control" value="{{ request.args.get('start', '') }}">
     </div>
     <div class="col-md-3">
-      <label for="end_date" class="form-label">End Date</label>
-      <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+      <label for="end" class="form-label">End Date</label>
+      <input type="date" id="end" name="end" class="form-control" value="{{ request.args.get('end', '') }}">
     </div>
     <div class="col-md-3">
-      <label for="router_id" class="form-label">Router</label>
-      <select id="router_id" name="router_id" class="form-select">
+      <label for="router" class="form-label">Router</label>
+      <select id="router" name="router" class="form-select">
         <option value="">All Routers</option>
-        {% for router in routers %}
-        <option value="{{ router.id }}" {% if request.args.get('router_id') == router.id|string %}selected{% endif %}>{{ router.name }}</option>
+        {% for r in routers %}
+        <option value="{{ r.id }}" {% if request.args.get('router') == r.id|string %}selected{% endif %}>{{ r.name }}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-md-3">
-      <label for="staff_id" class="form-label">Staff</label>
-      <select id="staff_id" name="staff_id" class="form-select">
-        <option value="">All Staff</option>
-        {% for user in staff %}
-        <option value="{{ user.id }}" {% if request.args.get('staff_id') == user.id|string %}selected{% endif %}>{{ user.username }}</option>
-        {% endfor %}
-      </select>
+    <div class="col-md-3 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary me-2 w-100">🔍 Filter</button>
     </div>
     <div class="col-md-12">
-      <button type="submit" class="btn btn-primary me-2">🔍 Filter</button>
-      <a href="{{ url_for('reports.usage_report') }}?{{ request.query_string.decode('utf-8') }}&export=csv" class="btn btn-outline-secondary me-2">📤 Export CSV</a>
-      <a href="{{ url_for('reports.usage_report') }}?{{ request.query_string.decode('utf-8') }}&export=pdf" class="btn btn-outline-secondary">📄 Export PDF</a>
+      <a href="{{ url_for('admin_reports.usage_report') }}?{{ request.query_string|safe }}&export=csv" class="btn btn-outline-secondary me-2">📤 Export CSV</a>
+      <a href="{{ url_for('admin_reports.usage_report') }}?{{ request.query_string|safe }}&export=pdf" class="btn btn-outline-secondary">📄 Export PDF</a>
     </div>
   </form>
 
-  {% if usages %}
+  <!-- Table -->
+  {% if vouchers %}
   <div class="table-responsive">
-    <table class="table table-bordered table-hover table-sm">
+    <table class="table table-bordered table-hover table-sm align-middle">
       <thead class="table-light">
         <tr>
-          <th>🎟️ Voucher Code</th>
+          <th>Voucher Code</th>
+          <th>Plan</th>
           <th>Router</th>
           <th>IP</th>
           <th>MAC</th>
-          <th>Session Start</th>
-          <th>Session End</th>
+          <th>First Used</th>
+          <th>Last Updated</th>
           <th>Used (MB)</th>
         </tr>
       </thead>
       <tbody>
-        {% for u in usages %}
+        {% for v in vouchers %}
         <tr>
-          <td><code>{{ u.voucher_code }}</code></td>
-          <td>{{ u.router.name if u.router else "N/A" }}</td>
-          <td>{{ u.ip_address }}</td>
-          <td>{{ u.mac_address or "N/A" }}</td>
-          <td>{{ u.session_start.strftime('%Y-%m-%d %H:%M') if u.session_start else "—" }}</td>
-          <td>{{ u.session_end.strftime('%Y-%m-%d %H:%M') if u.session_end else "Ongoing" }}</td>
-          <td>{{ u.data_used_mb or 0 }}</td>
+          <td><code>{{ v.code }}</code></td>
+          <td>{{ v.plan_name or v.plan.name }}</td>
+          <td>{{ v.router.name if v.router else "—" }}</td>
+          <td>{{ v.used_by_ip or "—" }}</td>
+          <td>{{ v.used_by_mac or "—" }}</td>
+          <td>{{ v.first_used_at.strftime('%Y-%m-%d %H:%M') if v.first_used_at else "—" }}</td>
+          <td>{{ v.used_at.strftime('%Y-%m-%d %H:%M') if v.used_at else "—" }}</td>
+          <td>{{ v.used_mb or 0 }} MB</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <div class="alert alert-info mt-4">No voucher usage logs found for the selected filters.</div>
+  <div class="alert alert-info mt-4">No voucher usage data found for selected filters.</div>
   {% endif %}
 </div>
 {% endblock %}

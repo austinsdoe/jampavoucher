@@ -27,6 +27,8 @@ class Voucher(db.Model):
 
     router_id = db.Column(db.Integer, db.ForeignKey('mikro_tik_router.id'), nullable=True)
     used_on_router_id = db.Column(db.Integer, db.ForeignKey('mikro_tik_router.id'), nullable=True)
+    created_on_router_id = db.Column(db.Integer, db.ForeignKey('mikro_tik_router.id'), nullable=True)
+
     batch_id = db.Column(db.Integer, db.ForeignKey('voucher_batch.id'), nullable=True)
     created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
@@ -36,6 +38,7 @@ class Voucher(db.Model):
     plan = db.relationship('Plan', backref='vouchers')
     router = db.relationship('MikroTikRouter', foreign_keys=[router_id], backref='vouchers_for_batch')
     used_on_router = db.relationship('MikroTikRouter', foreign_keys=[used_on_router_id], backref='vouchers_used')
+    created_on_router = db.relationship('MikroTikRouter', foreign_keys=[created_on_router_id], backref='vouchers_created')
     creator = db.relationship('User', backref='created_vouchers', lazy=True)
 
     # ──────────────── Core Logic ────────────────
@@ -46,10 +49,6 @@ class Voucher(db.Model):
         return f"Voucher {self.code} ({self.plan.name if self.plan else self.plan_name})"
 
     def mark_first_use(self):
-        """
-        Called internally when voucher is actively consumed.
-        Marks it as 'used' and sets timing based on plan duration.
-        """
         if not self.first_used_at:
             now = datetime.utcnow()
             self.first_used_at = now
@@ -60,9 +59,6 @@ class Voucher(db.Model):
         db.session.commit()
 
     def mark_in_use(self, mac=None):
-        """
-        Called when MikroTik informs app of login. Marks as 'inuse'.
-        """
         if not self.first_used_at:
             self.first_used_at = datetime.utcnow()
             duration_days = getattr(self.plan, 'duration_days', 0) if self.plan else 0
@@ -74,22 +70,15 @@ class Voucher(db.Model):
         db.session.commit()
 
     def add_usage(self, mb_used):
-        """
-        Adds local MB usage counter. Should be updated periodically.
-        """
         if not isinstance(mb_used, (int, float)) or mb_used < 0:
             raise ValueError("Usage must be a positive number")
         self.used_mb += mb_used
         db.session.commit()
 
     def is_expired(self):
-        """
-        Returns True if the voucher is expired (time or cap), based on real-time router data if available.
-        """
         now = datetime.utcnow()
         time_expired = self.valid_until is not None and now > self.valid_until
 
-        # Try live MikroTik usage fetch
         try:
             if self.used_by_mac and self.router_id:
                 router = MikroTikRouter.query.get(self.router_id)
@@ -103,16 +92,12 @@ class Voucher(db.Model):
         except Exception as e:
             print(f"[⚠️] Voucher expiry usage check failed: {e}")
 
-        # Local fallback check
         cap = self.data_cap or (self.plan.bandwidth_limit_mb if self.plan else 0)
         local_data_expired = cap > 0 and self.used_mb >= cap
 
         return time_expired or local_data_expired
 
     def expire(self):
-        """
-        Force-expire the voucher (manual or system-driven).
-        """
         if self.status != 'expired':
             self.status = 'expired'
             db.session.commit()
@@ -120,15 +105,11 @@ class Voucher(db.Model):
     # ──────────────── Properties ────────────────
     @property
     def percent_used(self):
-        """Percentage of total data cap used (local)."""
         cap = self.data_cap or (self.plan.bandwidth_limit_mb if self.plan else 0)
         return round((self.used_mb / cap) * 100, 2) if cap else 0
 
     @property
     def remaining_mb(self):
-        """
-        Calculates remaining MB using MikroTik API or local fallback.
-        """
         try:
             if self.used_by_mac and self.router_id:
                 router = MikroTikRouter.query.get(self.router_id)
@@ -163,10 +144,8 @@ class Voucher(db.Model):
             return "In Use"
         return self.status
 
-    # ──────────────── Alias ────────────────
     @property
     def expires_at(self):
-        """Alias for valid_until"""
         return self.valid_until
 
     @expires_at.setter
